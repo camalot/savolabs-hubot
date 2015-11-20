@@ -47,5 +47,5 @@ module.exports = (robot) ->
     "https://media2.giphy.com/media/ALJI2lzh2Plcs/200.gif",
     "https://media2.giphy.com/media/9biCoFP1V2xZm/200.gif"
   ]
-  robot.hear /(gif|jif)/i, (msg) ->
+  robot.hear /pronounced (gif|jif)/i, (msg) ->
     msg.send msg.random jifgif
