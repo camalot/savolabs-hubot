@@ -34,12 +34,7 @@ module.exports = (robot) ->
     "https://media0.giphy.com/media/11CGJUWW1TqnHW/200.gif",
     "https://media0.giphy.com/media/SyC4Pywv6Go1O/200.gif",
     "https://media1.giphy.com/media/Z9mJHxBD3n0aY/200.gif",
-    "https://media1.giphy.com/media/122T1wvaC49HJS/200.gif"
-  ]
-  robot.hear /(agile|orchestration|waterfall|automation|ansible|chef|puppet|azure|cloud|continuous (delivery|integration)|iaas|paas|iac|scrum|kanban)/i, (msg) ->
-    msg.send msg.random randomBuzzWordGiphy
-
-  jifgif = [
+    "https://media1.giphy.com/media/122T1wvaC49HJS/200.gif",
     "https://media0.giphy.com/media/ntpzwedUHOycM/200.gif",
     "https://media1.giphy.com/media/HM0yrJYfXfeNi/200.gif",
     "https://media4.giphy.com/media/gLNxsIBRWQoZW/200.gif",
@@ -49,6 +44,7 @@ module.exports = (robot) ->
     "https://media4.giphy.com/media/YIbgEP9NpNY5O/200.gif",
     "https://media2.giphy.com/media/ALJI2lzh2Plcs/200.gif",
     "https://media2.giphy.com/media/9biCoFP1V2xZm/200.gif"
+
   ]
-  robot.hear /pronounced (gif|jif)/i, (msg) ->
-    msg.send msg.random jifgif
+  robot.hear /(agile|orchestration|waterfall|automation|ansible|chef|puppet|azure|cloud|continuous (delivery|integration)|iaas|paas|iac|scrum|kanban)/i, (msg) ->
+    msg.send msg.random randomBuzzWord
