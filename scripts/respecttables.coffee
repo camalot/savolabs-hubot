@@ -28,5 +28,12 @@ module.exports = (robot) ->
       '┬─┬ ︵ ლ(⌒-⌒ლ)',
       'Please respect the table! ┬─┬﻿ ノ( ゜-゜ノ)'
   ]
-  robot.hear /┻━┻/i, (msg) ->
+  robot.hear /(┻━┻|flip table)/i, (msg) ->
     msg.send msg.random respects
+  tableThanks = [
+    "Always respect the table!",
+    "+1",
+    "Hubot respects all the tables"
+  ]
+  robot.hear /(┬─┬|respect tables)/i, (msg) ->
+    msg.send msg.random tableThanks
