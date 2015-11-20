@@ -14,7 +14,7 @@
 #   ryan conrad
 
 module.exports = (robot) ->
-  randomBuzzWordGiphy = [
+  randomBuzzWord = [
     "https://media1.giphy.com/media/13IKMvjqRIysHm/200.gif",
     "https://media3.giphy.com/media/Plo5B2kahH06k/200.gif",
     "https://media2.giphy.com/media/3kbkoDnCQJkm4/200.gif",
@@ -44,7 +44,6 @@ module.exports = (robot) ->
     "https://media4.giphy.com/media/YIbgEP9NpNY5O/200.gif",
     "https://media2.giphy.com/media/ALJI2lzh2Plcs/200.gif",
     "https://media2.giphy.com/media/9biCoFP1V2xZm/200.gif"
-
   ]
   robot.hear /(agile|orchestration|waterfall|automation|ansible|chef|puppet|azure|cloud|continuous (delivery|integration)|iaas|paas|iac|scrum|kanban)/i, (msg) ->
     msg.send msg.random randomBuzzWord
