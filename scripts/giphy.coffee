@@ -1,4 +1,17 @@
-
+# Description:
+#   This is just some randomness
+#
+# Dependencies:
+#   None
+#
+# Configuration:
+#   None
+#
+# Commands:
+#   "*buzzwords*" - Hubot likes buzzwords
+#
+# Author:
+#   ryan conrad
 
 module.exports = (robot) ->
   randomBuzzWordGiphy = [
