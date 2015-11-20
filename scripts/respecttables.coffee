@@ -16,24 +16,26 @@
 module.exports = (robot) ->
   respects = [
       '┬─┬ノ(ಠ_ಠノ)',
-      '(╯°□°）╯︵ ┬─┬',
-      '┬─┬﻿ ノ( ゜-゜ノ)',
-      '┬─┬ ╯(°□° ╯)',
-      '┬─┬﻿ ︵ /(.□. \）',
-      '‎(ﾉಥ益ಥ）ﾉ ﻿︵ ┬─┬',
-      '┬─┬ ノ( ^_^ノ)',
-      "┬─┬ ︵  ╯('□' ╯)",
-      '┬─┬ ~ ︵ (._.)',
-      'ʕノ•ᴥ•ʔノ ︵ ┬─┬',
-      '┬─┬ ︵ ლ(⌒-⌒ლ)',
-      'Please respect the table! ┬─┬﻿ ノ( ゜-゜ノ)'
+      '┬─┬ノ(°□°ノ）',
+      '┬─┬ノ( ゜-゜ノ)',
+      '┬─┬╯(°□° ╯)',
+      '┬─┬/(.□./）',
+      '‎┬─┬ノ(ಥ益ಥノ）',
+      '┬─┬ノ( ^_^ノ)',
+      "┬─┬ ╯('□' ╯)",
+      '┬─┬ノ(._.ノ)',
+      '┬─┬ノʕ•ᴥ•ノʔ',
+      '┬─┬ლ(⌒-⌒ლ)',
+      '#{message.user.name}; Please respect the table ┬─┬﻿ ノ(._.ノ)',
+      '#{message.user.name}; Please respect the table ┬─┬ノ(ಠ_ಠノ)',
+      "/giphy respect tables",      
   ]
-  robot.hear /(┻━┻|flip table)/i, (msg) ->
+  robot.hear /(┻━┻|flip(ped)? table)/i, (msg) ->
     msg.send msg.random respects
   tableThanks = [
     "Always respect the table!",
-    "+1",
-    "Hubot respects all the tables"
+    ":+1:",
+    "/me respects all the tables"
   ]
   robot.hear /(┬─┬|respect tables)/i, (msg) ->
     msg.send msg.random tableThanks
