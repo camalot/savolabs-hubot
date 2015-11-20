@@ -28,7 +28,7 @@ module.exports = (robot) ->
       '┬─┬ლ(⌒-⌒ლ)',
       '#{message.user.name}; Please respect the table ┬─┬﻿ ノ(._.ノ)',
       '#{message.user.name}; Please respect the table ┬─┬ノ(ಠ_ಠノ)',
-      "/giphy respect tables",      
+      "https://media2.giphy.com/media/mKxsVRaYEXUgo/200.gif",      
   ]
   robot.hear /(┻━┻|flip(ped)? table)/i, (msg) ->
     msg.send msg.random respects
