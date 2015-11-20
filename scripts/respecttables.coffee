@@ -26,8 +26,8 @@ module.exports = (robot) ->
       "┬─┬ノ(._.ノ)",
       "┬─┬ノʕ•ᴥ•ノʔ",
       "┬─┬ლ(⌒-⌒ლ)",
-      "#{message.user.name}; Please respect the table ┬─┬﻿ ノ(._.ノ)",
-      "#{message.user.name}; Please respect the table ┬─┬ノ(ಠ_ಠノ)",
+      "Please respect the table ┬─┬﻿ ノ(._.ノ)",
+      "Please respect the table ┬─┬ノ(ಠ_ಠノ)",
       "https://media2.giphy.com/media/mKxsVRaYEXUgo/200.gif",
   ]
   robot.hear /(┻━┻|flip(ped)? table)/i, (msg) ->
