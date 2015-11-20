@@ -17,7 +17,10 @@
     "hubot-rules": "^0.1.1",
     "hubot-scripts": "^2.16.2",
     "hubot-shipit": "^0.2.0",
-    "hubot-slack": "^3.4.2"
+    "hubot-slack": "^3.4.2",
+    "hubot-soon": "^1.0.0",
+    "hubot-standup-alarm": "0.0.7",
+    "hubot-thank-you": "0.0.3"
   },
   "engines": {
     "node": "0.10.x"

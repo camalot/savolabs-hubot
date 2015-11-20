@@ -7,5 +7,8 @@
   "hubot-maps",
   "hubot-rules",
   "hubot-shipit",
-  "hubot-azure-scripts/brain/storage-blob-brain"
+  "hubot-azure-scripts/brain/storage-blob-brain",
+  "hubot-standup-alarm",
+  "hubot-thank-you",
+  "hubot-soon"
 ]
