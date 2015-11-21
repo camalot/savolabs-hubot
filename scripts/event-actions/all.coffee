@@ -25,4 +25,4 @@ module.exports =
     pusher = data.pusher
 
     if !data.deleted
-      callback "Power Up! #{pusher.name} https://media0.giphy.com/media/3o85xCyoIze7YOLhfO/200_s.gif"
+      callback "Power Up! #{pusher.name} https://media0.giphy.com/media/3o85xCyoIze7YOLhfO/200.gif"
