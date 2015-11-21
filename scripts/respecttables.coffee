@@ -1,3 +1,4 @@
+#! /usr/bin/env coffee
 # Description:
 #   Make hubot respect tables
 #
