@@ -19,7 +19,7 @@ format = (require("util")).format
 module.exports = (robot) ->
   apiUrl = "http://replygif.net/api/gifs?%s=%s&api-key=39YAprx5Yi"
   reactions = ["yes","no","happy","sad","thumbs+up","thumbs+down","flirt","angry","awkward","wtf","ok","exclamation+mark","question+mark","ellipsis","meh","misc"]
-  replyPattern = /^\!reply (.+)$/i
+  replyPattern = /^\!(?:reply|react(?:ion)?) (.+)$/i
   reactPattern = /(?:(?:can i get your (?:opinion|thought)s? (?:on|about|concerning))|(?:what do you think|how do you feel)(?: about)?) (.+?)\??$/i
 
   robot.respond reactPattern, (msg) ->
@@ -53,6 +53,7 @@ module.exports = (robot) ->
         return
 
   getTag = (tag, callback) ->
+    if /\#\#\#\#\#\#\#/i.test(tag)
     url = format(apiUrl,"tag", tag)
     robot.http(url)
       .header("Accept", "application/json")
