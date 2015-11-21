@@ -54,6 +54,7 @@ module.exports = (robot) ->
 
   getTag = (tag, callback) ->
     if /\#\#\#\#\#\#\#/i.test(tag)
+      tag = "fuck+you"
     url = format(apiUrl,"tag", tag)
     robot.http(url)
       .header("Accept", "application/json")
