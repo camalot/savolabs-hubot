@@ -69,7 +69,6 @@ module.exports = (robot) ->
     branch = (query.branch || process.env["HUBOT_POWERUP_BRANCH"] || "master")
     branchRegex = RegExp "(refs\/heads\/)?#{branch}$", "i"
     eventType = req.headers["x-github-event"]
-    robot.messageRoom "#general", "#{eventType}: #{branch}"
     robot.logger.debug "powerup: Processing event type: \"#{eventType}\"..."
     try
 
