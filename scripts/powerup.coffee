@@ -98,7 +98,7 @@ module.exports = (robot) ->
       if filter_parts.length > 0
         for room in rooms
           announceRepoEvent data, eventType, (what) ->
-            robot.messageRoom rooms, what
+            robot.messageRoom room, what
 
     catch error
       for room in rooms
