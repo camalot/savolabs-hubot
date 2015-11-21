@@ -99,6 +99,7 @@ module.exports = (robot) ->
         for room in rooms
           announceRepoEvent data, eventType, (what) ->
             robot.messageRoom rooms, what
+            
     catch error
       for room in rooms
         robot.messageRoom room, "I was unable to Power Up: #{error}"
