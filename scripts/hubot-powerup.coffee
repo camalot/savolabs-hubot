@@ -65,7 +65,7 @@ module.exports = (robot) ->
 
     data = req.body
     robot.logger.debug "powerup: Received POST to /hubot/powerup with data = #{inspect data}"
-    rooms = (query.room || process.env["HUBOT_POWERUP_ROOMS"] || "#general,#random").split(",")
+    rooms = (query.room || process.env["HUBOT_POWERUP_ROOMS"] || "#random").split(",")
     branch = (query.branch || process.env["HUBOT_POWERUP_BRANCH"] || "master")
     branchRegex = RegExp "(refs\/heads\/)?#{branch}$", "i"
     eventType = req.headers["x-github-event"]
