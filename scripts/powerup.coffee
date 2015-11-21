@@ -86,10 +86,8 @@ module.exports = (robot) ->
           if !data.hasOwnProperty('action') || action_part == data.action || action_part == "*"
             branchMatch = false
             if data.ref # has the full ref path: /refs/heads/{branch}
-              robot.messageRoom "#general", "#{data.ref} match : #{branchRegex.test(data.ref)}"
               branchMatch = branchRegex.test(data.ref)
             else if data.head && data.head.ref
-              robot.messageRoom "#general", "#{data.head.ref} match : #{branchRegex.test(data.head.ref)}"
               branchMatch = branchRegex.test(data.head.ref)
             return branchMatch
 
@@ -102,7 +100,7 @@ module.exports = (robot) ->
 
     catch error
       for room in rooms
-        robot.messageRoom room, "I was unable to Power Up: #{error}"
+        robot.messageRoom room, "I was unable to Power Up: #{error} http://replygif.net/i/1378.gif"
         console.log "powerup error: #{error}. Request: #{req.body}"
 
     res.end ""
