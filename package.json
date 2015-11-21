@@ -14,13 +14,16 @@
     "hubot-help": "^0.1.2",
     "hubot-maps": "0.0.2",
     "hubot-pugme": "^0.1.0",
+    "hubot-reaction": "0.0.6",
     "hubot-rules": "^0.1.1",
     "hubot-scripts": "^2.16.2",
     "hubot-shipit": "^0.2.0",
     "hubot-slack": "^3.4.2",
     "hubot-soon": "^1.0.0",
     "hubot-standup-alarm": "0.0.7",
-    "hubot-thank-you": "0.0.3"
+    "hubot-thank-you": "0.0.3",
+    "querystring": "^0.2.0",
+    "url": "^0.11.0"
   },
   "engines": {
     "node": "0.10.x"
