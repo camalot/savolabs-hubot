@@ -69,6 +69,7 @@ module.exports = (robot) ->
     branch = (query.branch || process.env["HUBOT_POWERUP_BRANCH"] || "master")
     branchRegex = /(refs\/heads\/)?#{branch}$/i
     eventType = req.headers["x-github-event"]
+    robot.messageRoom "#general" "#{eventType}: #{branch}"
     robot.logger.debug "powerup: Processing event type: \"#{eventType}\"..."
     try
 
@@ -85,8 +86,10 @@ module.exports = (robot) ->
           if !data.hasOwnProperty('action') || action_part == data.action || action_part == "*"
             branchMatch = false
             if data.ref # has the full ref path: /refs/heads/{branch}
+              robot.messageRoom "#general" "#{data.ref} match : #{branchRegex.test(data.ref)}"
               branchMatch = branchRegex.test(data.ref)
             else if data.head && data.head.ref
+              robot.messageRoom "#general" "#{data.ref} match : #{branchRegex.test(data.ref)}"
               branchMatch = branchRegex.test(data.head.ref)
             return branchMatch
 
