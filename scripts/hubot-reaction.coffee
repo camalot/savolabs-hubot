@@ -12,12 +12,11 @@
 #
 # Author:
 #   ryan conrad
-request = require('request')
 format = (require("util")).format
 url = "http://replygif.net/api/gifs?tag=%s&api-key=39YAprx5Yi"
 
 module.exports = (robot) ->
-  robot.hear /^\/reply (.+)$/, (msg) ->
+  robot.hear /^\!reply (.+)$/, (msg) ->
     tag = parseTag msg.match[1]
     get tag, (gifs) =>
       if gifs.length == 0
