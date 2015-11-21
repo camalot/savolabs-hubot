@@ -45,5 +45,5 @@ module.exports = (robot) ->
     "https://media2.giphy.com/media/ALJI2lzh2Plcs/200.gif",
     "https://media2.giphy.com/media/9biCoFP1V2xZm/200.gif"
   ]
-  robot.hear /(agile|orchestration|waterfall|automation|ansible|chef|puppet|azure|cloud|continuous (delivery|integration)|iaas|paas|iac|scrum|kanban)/i, (msg) ->
+  robot.respond /(agile|orchestration|waterfall|automation|ansible|chef|puppet|azure|cloud|continuous (delivery|integration)|iaas|paas|iac|scrum|kanban)/i, (msg) ->
     msg.send msg.random randomBuzzWord

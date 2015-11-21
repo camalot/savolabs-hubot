@@ -30,12 +30,12 @@ module.exports = (robot) ->
       "Please respect the table ┬─┬ノ(ಠ_ಠノ)",
       "https://media2.giphy.com/media/mKxsVRaYEXUgo/200.gif",
   ]
-  robot.hear /(┻━┻|flip(ped)? table)/i, (msg) ->
+  robot.hear /(┻━┻|flip(ped)? tables?)/i, (msg) ->
     msg.send msg.random respects
   tableThanks = [
     "Always respect the table!",
     ":+1:",
     "** respects all the tables **"
   ]
-  robot.hear /(┬─┬|respect tables)/i, (msg) ->
+  robot.hear /(┬─┬|respects? tables)/i, (msg) ->
     msg.send msg.random tableThanks
