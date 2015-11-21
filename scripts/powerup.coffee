@@ -67,7 +67,7 @@ module.exports = (robot) ->
     robot.logger.debug "powerup: Received POST to /hubot/powerup with data = #{inspect data}"
     rooms = (query.room || process.env["HUBOT_POWERUP_ROOMS"] || "#general,#random").split(",")
     branch = (query.branch || process.env["HUBOT_POWERUP_BRANCH"] || "master")
-    branchRegex = /(refs\/heads\/)?#{branch}$/i
+    branchRegex = RegExp "(refs\/heads\/)?#{branch}$", "i"
     eventType = req.headers["x-github-event"]
     robot.messageRoom "#general", "#{eventType}: #{branch}"
     robot.logger.debug "powerup: Processing event type: \"#{eventType}\"..."
@@ -89,7 +89,7 @@ module.exports = (robot) ->
               robot.messageRoom "#general", "#{data.ref} match : #{branchRegex.test(data.ref)}"
               branchMatch = branchRegex.test(data.ref)
             else if data.head && data.head.ref
-              robot.messageRoom "#general", "#{data.ref} match : #{branchRegex.test(data.ref)}"
+              robot.messageRoom "#general", "#{data.head.ref} match : #{branchRegex.test(data.head.ref)}"
               branchMatch = branchRegex.test(data.head.ref)
             return branchMatch
 
@@ -99,7 +99,7 @@ module.exports = (robot) ->
         for room in rooms
           announceRepoEvent data, eventType, (what) ->
             robot.messageRoom rooms, what
-            
+
     catch error
       for room in rooms
         robot.messageRoom room, "I was unable to Power Up: #{error}"
