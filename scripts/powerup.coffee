@@ -37,7 +37,32 @@ url = require('url')
 querystring = require('querystring')
 branch = process.env["HUBOT_GH_POWERUP_BRANCH"] || "master"
 branchRegex = /\/refs\/heads\/#{branch}/i
-eventActions = require('./event-actions/all')
+eventActions =
+  push: (data, callback) ->
+    commit = data.after
+    commits = data.commits
+    head_commit = data.head_commit
+    repo = data.repository
+    pusher = data.pusher
+
+    if !data.deleted
+      callback "Power up! https://media1.giphy.com/media/rhdscFKah6Rva/200.gif"
+
+  pull_request: (data, callback) ->
+    pull_num = data.number
+    pull_req = data.pull_request
+    base = data.base
+    repo = data.repository
+    sender = data.sender
+
+    action = data.action
+
+    msg = "Pull Request \##{data.number} \"#{pull_req.title}\" "
+
+    switch action
+      when "opened"
+        msg = "#{sender.login} submitted a powerup https://media4.giphy.com/media/3o85xCyoIze7YOLhfO/200.gif"
+    callback msg
 eventTypesRaw = ["push","pull_request"]
 eventTypes = []
 
@@ -69,7 +94,7 @@ module.exports = (robot) ->
     allRooms = (query.room || process.env["HUBOT_GITHUB_EVENT_NOTIFIER_ROOM"] || "#general,#random").split(",")
     eventType = req.headers["x-github-event"]
     robot.logger.debug "powerup: Processing event type: \"#{eventType}\"..."
-
+    rooms = []
     if req.body.rooms
       rooms = req.body.rooms.split(',')
     else
