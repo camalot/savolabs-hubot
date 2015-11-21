@@ -23,6 +23,7 @@
     "hubot-standup-alarm": "0.0.7",
     "hubot-thank-you": "0.0.3",
     "querystring": "^0.2.0",
+    "request": "^2.67.0",
     "url": "^0.11.0",
     "util": "^0.10.3"
   },
