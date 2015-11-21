@@ -70,7 +70,6 @@ module.exports = (robot) ->
     branchRegex = /(refs\/heads\/)?#{branch}$/i
     eventType = req.headers["x-github-event"]
     robot.logger.debug "powerup: Processing event type: \"#{eventType}\"..."
-
     try
 
       filter_parts = eventTypes
