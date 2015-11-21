@@ -26,4 +26,4 @@ module.exports =
 
     if !data.deleted
       # I like this one, but it's huge: https://media0.giphy.com/media/3o85xCyoIze7YOLhfO/200.gif
-      callback "Power Up! #{pusher.name} https://media2.giphy.com/media/O5JBreFUy6ZIQ/200.gif"
+      callback "Power Up! thanks #{pusher.name}\n#{head_commit.message}\nhttps://media2.giphy.com/media/O5JBreFUy6ZIQ/200.gif"
