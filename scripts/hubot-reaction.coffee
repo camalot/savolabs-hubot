@@ -8,32 +8,61 @@
 #   None
 #
 # Commands:
-#   /reply <tag>
+#   !reply <tag>
+#   hubot what do you think about ...
+#   hubot how do you feel about ...
+#   hubot can i get your opinion about ...
 #
 # Author:
 #   ryan conrad
 format = (require("util")).format
-url = "http://replygif.net/api/gifs?tag=%s&api-key=39YAprx5Yi"
-
 module.exports = (robot) ->
-  robot.hear /^\!reply (.+)$/, (msg) ->
+  apiUrl = "http://replygif.net/api/gifs?%s=%s&api-key=39YAprx5Yi"
+  reactions = ["yes","no","happy","sad","thumbs+up","thumbs+down","flirt","angry","awkward","wtf","ok","exclamation+mark","question+mark","ellipsis","meh","misc"]
+  replyPattern = /^\!reply (.+)$/i
+  reactPattern = /(?:(?:can i get your (?:opinion|thought)s? (?:on|about|concerning))|(?:what do you think|how do you feel)(?: about)?) (.+?)\??$/i
+
+  robot.respond reactPattern, (msg) ->
+    idx = Math.floor(Math.random() * reactions.length) || 0
+    getReaction reactions[idx], (gifs) ->
+      if gifs.length == 0
+        msg.send "I am not actually sure how to respond to that."
+      else
+        rand = Math.floor(Math.random() * gifs.length) || 0
+        msg.send gifs[idx].file
+
+  robot.hear replyPattern, (msg) ->
     tag = parseTag msg.match[1]
-    get tag, (gifs) =>
+    getTag tag, (gifs) ->
       if gifs.length == 0
         msg.send "i got nothing, sorry: http://replygif.net/i/147.gif"
       else
-        ind = Math.floor(Math.random() * gifs.length) || 0
-        msg.send gifs[ind].file
-  get = (tag, callback) ->
-    xurl = format(url,tag)
-    robot.http(xurl)
+        idx = Math.floor(Math.random() * gifs.length) || 0
+        msg.send gifs[idx].file
+
+  getReaction = (react, callback) ->
+    url = format(apiUrl,"reply",react)
+    robot.http(url)
       .header("Accept", "application/json")
-      .get() (err,res,body) =>
+      .get() (err,res,body) ->
         if err
           callback []
           return
         data = JSON.parse body
         callback data
         return
+
+  getTag = (tag, callback) ->
+    url = format(apiUrl,"tag", tag)
+    robot.http(url)
+      .header("Accept", "application/json")
+      .get() (err,res,body) ->
+        if err
+          callback []
+          return
+        data = JSON.parse body
+        callback data
+        return
+
   parseTag = (txt) ->
     txt.toLowerCase().replace(/[^\w \-]+/g,'').replace(/--+/g, '').replace(/\s/g,'+')

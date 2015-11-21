@@ -1,6 +1,6 @@
 [
-  "respecttables",
-  "buzzwords",
-  "powerup",
+  "hubot-respecttables",
+  "hubot-buzzwords",
+  "hubot-powerup",
   "hubot-reaction"
 ]
