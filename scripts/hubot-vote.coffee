@@ -26,13 +26,27 @@ module.exports = (robot) ->
   robot.brain.setAutoSave(true)
   eventActions = require('./event-actions/vote-actions')
   pollPattern = /^\!poll (?:(new|start|stop|results|add|remove|list|delete|status)\s?)(.+?)?(?:\s(.+))?$/i
-  robot.hear /^\!brain$/i, (msg) ->
-    robot.logger.debug("#{inspect robot.brain.get("polls_root")}")
+  votePattern = /^!vote (.+?) (.+)$/i
+  robot.hear votePattern, (msg) ->
+    action = "vote"
+    pollId = msg.match[1]
+    vote = msg.match[2]
+    data =
+      msg: msg
+      poll:
+        name: pollId
+        query: vote
+
+    triggerEvent "poll_#{action}", data, (what) ->
+      msg.send what
+
+    return
   robot.hear pollPattern, (msg) ->
     action = msg.match[1].trim().toLowerCase()
     eventName = "poll_#{action}"
     triggerEvent eventName, msg, (what) ->
       msg.send what
+    return
 
   triggerEvent = (eventName, data, cb) ->
     if eventActions[eventName]?

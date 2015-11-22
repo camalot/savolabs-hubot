@@ -35,6 +35,7 @@ keys =
   items : "items"
   item_name : "name"
   item_votes : "votes"
+  voters: "voters"
 logger = null
 module.exports =
 
@@ -183,13 +184,14 @@ module.exports =
     logger = robot.logger
     brain = robot.brain
     pollName = (data.match[2] || "").toLowerCase()
-    itemName = (data.match[3])
+    itemName = (data.match[3] || "")
 
     queryData =
-      user: user.name
+      user: user.name.toLowerCase()
       room: data.message.room.toLowerCase()
       name: pollName
-    if !(itemName || pollName)?
+    if (itemName == "" || pollName == "")
+      logger.debug("item: #{itemName} : poll: #{pollName}")
       return
     itemNameKey = itemName.toLowerCase()
     poll = getPoll(brain,queryData)
@@ -304,6 +306,19 @@ module.exports =
       else
         callback "@#{user.name}: There was some catastrophic error that caused time to skip. As a result, I couldn't delete \"#{pollName}\"."
     return
+  poll_vote: (data, callback) ->
+    msg = data.msg
+    voteInfo = data.poll
+    user = msg.message.user
+    robot = msg.robot
+    logger = robot.logger
+    brain = robot.brain
+    queryData =
+      user: user.name.toLowerCase()
+      room: msg.message.room.toLowerCase()
+      name: voteInfo.name.toLowerCase()
+    votePollItem(brain, queryData, voteInfo.query, callback)
+    return
 createPoll = (brain, data, cb) ->
   try
     roomPolls = getRoomPolls brain, data
@@ -317,6 +332,7 @@ createPoll = (brain, data, cb) ->
       description: data.description
       items: {}
       started: false
+      voters: []
     brain.set keys.root, root
     cb(true)
   catch error
@@ -341,6 +357,61 @@ getPoll = (brain, data) ->
     return null
   result = root[keys.rooms][data.room][keys.polls][data.name]
   return result
+votePollItem = (brain, data, keyOrIndex, callback) ->
+
+  poll = getPoll(brain,data)
+  if !(poll)?
+    callback "@#{data.user}: I was unable to find the poll \"#{data.name}\""
+    return
+  else if !poll.started
+    logger.debug("poll \"#{data.name}\" is not started.")
+    return
+  root = getRoot brain, data
+  voters = root[keys.rooms][data.room][keys.polls][data.name][keys.voters] || []
+
+  filtered = (voters.filter (i) -> i.toLowerCase() == data.user.toLowerCase())
+  if(filtered.length > 0)
+    callback "@#{data.user}: Sorry, but you already casted your vote. No do-overs."
+    return
+
+  items = root[keys.rooms][data.room][keys.polls][data.name][keys.items]
+
+  index = parseInt(keyOrIndex)
+  lookup = keyOrIndex
+  if !isNaN(index)
+    logger.debug("got the index value: #{index}")
+    # get by index
+    i = 0
+    for own x, value of items
+      logger.debug("checking #{i} == #{index}")
+      if i == (index-1)
+        logger.debug("setting lookup : #{x}")
+        lookup = x
+        break
+      i++
+  # this will probably never happen
+  if !(lookup)?
+    logger.debug("lookup is empty")
+    callback "@#{data.user}: I was unable to locate the item \"#{keyOrIndex}\" in the poll \"#{data.name}\""
+    return
+
+  # now we have the name, get the item
+  item = items[lookup.toLowerCase()]
+  if !(item)
+    logger.debug("items: #{inspect items}")
+    callback "@#{data.user}: I was unable to locate the item \"#{keyOrIndex}\" in the poll \"#{data.name}\""
+    return
+
+  voters[voters.length] = data.user.toLowerCase()
+  votes = item[keys.item_votes]
+  votes[votes.length] =
+    time: new Date
+    room: data.room
+    user: data.user.toLowerCase()
+  brain.set keys.root, root
+  brain.save()
+  callback "@#{data.user}: I have recorded your vote for \"#{lookup}\" in poll \"#{data.name}\""
+  return
 getPollResults = (brain, data) ->
   poll = getPoll(brain,data)
   logger.debug("poll: #{poll}")
@@ -352,7 +423,6 @@ getPollResults = (brain, data) ->
   max = 0
   items = poll.items
   for own x, value of items
-    logger.debug("x: #{x}")
     cnt = items[x].votes.length
     keys[keys.length] = x
     counts[counts.length] = items[x].votes.length
