@@ -70,8 +70,9 @@ module.exports =
 
     if !(poll)?
       callback "@#{user.name}: I don't have any results for a poll named \"#{pollName}\""
+      return
 
-    callback "https://chart.googleapis.com/chart?cht=bvg&chd=t:10,4,8,1,7&chco=76A4FB&chxt=x,y&chxl=0:|0|1|2|3|4|1:|0|10&chs=450x125&chds=0,10&chbh=30,15,35"
+    callback "Poll Results (#{pollName}):\nhttps://chart.googleapis.com/chart?cht=bvg&chd=t:10,4,8,1,7&chco=76A4FB&chxt=x,y&chxl=0:|0|1|2|3|4|1:|0|10&chs=450x125&chds=0,10&chbh=30,15,35"
     return
   poll_pause: (data, callback) ->
     callback "I haven't learned how to pause a poll yet"
