@@ -1,19 +1,19 @@
 #! /usr/bin/env coffee
 
 
-# new|start|stop|results|pause|add|remove|list|delete
+# new|start|stop|results|pause|add|remove|list|delete|status
 
 # polls_root : {
 #   rooms: {
 #     roomName : {
 #       polls : {
 #         "poll_name": {
-#           items: [
-#             {
-#               name: "item"
+#           items: {
+#             "item-key" : {
+#               name: "item-key
 #               votes: [] // holds the usernames that voted (maybe more data)
 #             }
-#           ]
+#           }
 #           "voters": [] // holds the usernames that voted (maybe more data)
 #         }
 #       }
@@ -153,6 +153,34 @@ module.exports =
     brain.set keys.root, root
     callback "@#{user.name}: I have removed \"#{itemName}\" from poll \"#{pollName}\""
     return
+  poll_status: (data, callback) ->
+    user = data.message.user
+    robot = data.robot
+    logger = robot.logger
+    brain = robot.brain
+    pollName = (data.match[2] || "").toLowerCase()
+    queryData =
+      user: user.name
+      room: data.message.room.toLowerCase()
+      name: pollName
+    isOwner = isPollOwner brain, queryData
+    poll = getPoll(brain,queryData)
+    if (!(poll)?)
+      callback "@#{user.name}: I do not have an active poll named \"#{pollName}\""
+      return
+    if !isOwner
+      callback "@#{user.name}: You do not own the poll \"#{pollName}\". You cannot request the status."
+      return
+
+    msg = "Poll Status: #{pollName}\n"
+    msg += "\tstarted: #{poll.started}\n"
+    logger.debug("poll: #{inspect poll}")
+    index = 0
+    for own x, value of poll[keys.items]
+      msg += "\t#{index+1}: #{poll[keys.items][x][keys.item_name]}\n"
+      index++
+    callback msg
+    return
   poll_list: (data, callback) ->
     user = data.message.user
     robot = data.robot
@@ -182,9 +210,9 @@ module.exports =
       # a poll with fewer than 2 items should not be able to be started.
       msg = ""
       index = 0
-      max = poll[keys.items].length
-      for index in [0..max-1] by 1
-        msg += "#{index+1}: #{poll[keys.items][index][keys.item_name]}\n"
+      for own x, value of poll[keys.items]
+        msg += "#{index+1}: #{poll[keys.items][x][keys.item_name]}\n"
+        index++
 
       msg += "\nVote by using: !vote #{pollName} <number|name>"
 
@@ -225,7 +253,7 @@ createPoll = (brain, data, cb) ->
       name: data.name
       user: data.user
       room: data.room
-      items: []
+      items: {}
       started: false
     brain.set keys.root, root
     cb(true)
