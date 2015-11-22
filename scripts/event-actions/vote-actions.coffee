@@ -57,8 +57,21 @@ module.exports =
     return
   poll_results: (data, callback) ->
     # https://chart.googleapis.com/chart?chxt=x,y&cht=bvs&chd=t:5,7,9,1&chco=76A4FB&chls=2.0&chs=250x250&chxl=0:|Jan|Feb|Mar|Apr|May
-    # moor
-    callback "I haven't learned how to list a poll's result yet"
+    user = data.message.user
+    robot = data.robot
+    logger = robot.logger
+    brain = robot.brain
+    pollName = (data.match[2] || "").toLowerCase()
+    queryData =
+      owner: user.name
+      room: data.message.room.toLowerCase()
+      name: pollName
+    poll = getPoll(brain,queryData)
+
+    if !(poll)?
+      callback "@#{user.name}: I don't have any results for a poll named \"#{pollName}\""
+
+    callback "https://chart.googleapis.com/chart?cht=bvg&chd=t:10,4,8,1,7&chco=76A4FB&chxt=x,y&chxl=0:|0|1|2|3|4|1:|0|10&chs=450x125&chds=0,10&chbh=30,15,35"
     return
   poll_pause: (data, callback) ->
     callback "I haven't learned how to pause a poll yet"
@@ -73,7 +86,6 @@ module.exports =
     user = data.message.user
     robot = data.robot
     logger = robot.logger
-    logger.debug("poll_list")
     brain = robot.brain
     pollName = (data.match[2] || "").toLowerCase()
     queryData =
