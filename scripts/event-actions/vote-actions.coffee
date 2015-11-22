@@ -66,7 +66,38 @@ module.exports =
 
     return
   poll_start: (data, callback) ->
-    callback "I haven't learned how to start a poll yet"
+    user = data.message.user
+    robot = data.robot
+    logger = robot.logger
+    brain = robot.brain
+    pollName = (data.match[2] || "").toLowerCase()
+
+    queryData =
+      user: user.name
+      room: data.message.room.toLowerCase()
+      name: pollName
+    isOwner = isPollOwner brain, queryData
+    if !isOwner
+      callback "@#{user.name}: You do not own this poll, you cannot start it."
+    poll = getPoll(brain,queryData)
+
+    # if the poll doesnt exist, or it has been started
+    if (!(poll)? )
+      callback "@#{user.name}: I do not have a poll named \"#{pollName}\" that I can start."
+      return
+    if poll.started
+      callback "@#{user.name}: The poll \"#{pollName}\" is already started."
+      return
+    # get items count
+    itemCount = 0
+    for own x, value of poll["items"]
+      itemCount++
+    if itemCount < 2
+      callback "@#{user.name}: The poll \"#{pollName}\" must have at least 2 items to start it."
+    root = getRoot brain, queryData
+    root[keys.rooms][queryData.room][keys.polls][queryData.name]["started"] = true
+    brain.set keys.root, root
+    listPolls(data,callback)
     return
   poll_stop: (data, callback) ->
     callback "I haven't learned how to stop a poll yet"
@@ -192,46 +223,7 @@ module.exports =
     callback msg
     return
   poll_list: (data, callback) ->
-    user = data.message.user
-    robot = data.robot
-    logger = robot.logger
-    brain = robot.brain
-    pollName = (data.match[2] || "").toLowerCase()
-    queryData =
-      user: user.name
-      room: data.message.room.toLowerCase()
-      name: pollName
-
-    if pollName == ""
-      roomPolls = getRoomPolls(brain, queryData)
-      logger.debug("polls: #{inspect roomPolls}")
-      msg = ""
-      for own x, value of roomPolls
-        p = roomPolls[x]
-        if (p.started)
-          msg += "!poll list #{x}\n"
-      callback msg
-      return
-    else # get specific poll
-      poll = getPoll(brain,queryData)
-      if (!(poll)?) || !poll.started
-        callback "@#{user.name}: I do not have an active poll named \"#{pollName}\""
-        return
-      # a poll with fewer than 2 items should not be able to be started.
-      msg = ""
-      if (poll.description)?
-        msg += "#{poll.description}\n"
-      else
-        msg += "#{poll.name}\n"
-      index = 0
-      for own x, value of poll[keys.items]
-        msg += "\n\t#{index+1}: #{poll[keys.items][x][keys.item_name]}"
-        index++
-
-      msg += "\nVote by using: !vote #{pollName} <number|name>"
-
-      callback msg
-    return
+    listPolls(data,callback)
   poll_delete: (data, callback) ->
     user = data.message.user
     robot = data.robot
@@ -321,3 +313,44 @@ deletePoll = (brain, data, cb) ->
 pollExists = (brain, data) ->
   p = (getPoll(brain, data))?
   return p
+listPolls = (data, callback) ->
+  user = data.message.user
+  robot = data.robot
+  logger = robot.logger
+  brain = robot.brain
+  pollName = (data.match[2] || "").toLowerCase()
+  queryData =
+    user: user.name
+    room: data.message.room.toLowerCase()
+    name: pollName
+
+  if pollName == ""
+    roomPolls = getRoomPolls(brain, queryData)
+    logger.debug("polls: #{inspect roomPolls}")
+    msg = ""
+    for own x, value of roomPolls
+      p = roomPolls[x]
+      if (p.started)
+        msg += "!poll list #{x}\n"
+    callback msg
+    return
+  else # get specific poll
+    poll = getPoll(brain,queryData)
+    if (!(poll)?) || !poll.started
+      callback "@#{user.name}: I do not have an active poll named \"#{pollName}\""
+      return
+    # a poll with fewer than 2 items should not be able to be started.
+    msg = ""
+    if (poll.description)?
+      msg += "#{poll.description}\n"
+    else
+      msg += "#{poll.name}\n"
+    index = 0
+    for own x, value of poll[keys.items]
+      msg += "\n\t#{index+1}: #{poll[keys.items][x][keys.item_name]}"
+      index++
+
+    msg += "\nVote by using: !vote #{pollName} <number|name>"
+
+    callback msg
+  return
