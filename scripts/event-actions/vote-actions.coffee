@@ -57,6 +57,7 @@ module.exports =
     return
   poll_results: (data, callback) ->
     # https://chart.googleapis.com/chart?chxt=x,y&cht=bvs&chd=t:5,7,9,1&chco=76A4FB&chls=2.0&chs=250x250&chxl=0:|Jan|Feb|Mar|Apr|May
+    # moor
     callback "I haven't learned how to list a poll's result yet"
     return
   poll_pause: (data, callback) ->
