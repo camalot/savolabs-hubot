@@ -118,10 +118,40 @@ module.exports =
       name: itemName
       votes: []
     brain.set keys.root, root
-    callback "@#{user.name}: I added \"#{itemName}\" added to poll \"#{pollName}\""
+    callback "@#{user.name}: I have added \"#{itemName}\" to poll \"#{pollName}\""
     return
   poll_remove: (data, callback) ->
-    callback "I haven't learned how to remove an item yet"
+    user = data.message.user
+    robot = data.robot
+    logger = robot.logger
+    brain = robot.brain
+    pollName = (data.match[2] || "").toLowerCase()
+    itemName = (data.match[3])
+
+    queryData =
+      user: user.name
+      room: data.message.room.toLowerCase()
+      name: pollName
+    if !(itemName || pollName)?
+      return
+    itemNameKey = itemName.toLowerCase()
+    poll = getPoll(brain,queryData)
+    # if the poll doesnt exist, or it has been started
+    if (!(poll)? || poll.started )
+      callback "@#{user.name}: I do not have a poll named \"#{pollName}\" that I can add an item to."
+      return
+    isOwner = isPollOwner brain, queryData
+    if !isOwner
+      callback "@#{user.name}: You do not have permission to add an item to this poll, it is owned by @#{poll.user}"
+      return
+    root = getRoot brain, queryData
+    items = root[keys.rooms][queryData.room][keys.polls][queryData.name][keys.items]
+    if !(items[itemNameKey])?
+      callback "@#{user.name}: I can't remove that item. It doesn't exist."
+      return
+    delete root[keys.rooms][queryData.room][keys.polls][queryData.name][keys.items][itemNameKey]
+    brain.set keys.root, root
+    callback "@#{user.name}: I have removed \"#{itemName}\" from poll \"#{pollName}\""
     return
   poll_list: (data, callback) ->
     user = data.message.user
