@@ -331,6 +331,7 @@ getRoomPolls = (brain, data) ->
       "#{data.room}":
         "#{keys.polls}": {}
     brain.set keys.root, root
+    brain.save()
     return {}
   return rooms[data.room][keys.polls]
 getPoll = (brain, data) ->
@@ -371,7 +372,9 @@ getRoot = (brain, data) ->
     return r
   else
     r =
-      rooms: {}
+      "#{keys.rooms}":
+        "#{data.room}":
+          "#{keys.polls}"
   brain.set keys.root, r
 isPollOwner = (brain, data) ->
   if !(pollExists brain, data)

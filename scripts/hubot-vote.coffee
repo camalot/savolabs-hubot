@@ -23,6 +23,7 @@
 
 inspect = (require('util')).inspect
 module.exports = (robot) ->
+  robot.brain.setAutoSave(true)
   eventActions = require('./event-actions/vote-actions')
   pollPattern = /\!poll (?:(new|start|stop|results|add|remove|list|delete|status)\s?)(.+?)?(?:\s(.+))?$/i
   robot.hear /\!brain/i, (msg) ->
