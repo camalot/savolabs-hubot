@@ -8,7 +8,7 @@
 #   None
 #
 # Commands:
-#   !poll new <poll-name> : create a new poll
+#   !poll new <poll-name> [description]: create a new poll
 #   !poll start <poll-name> : start a poll (owner)
 #   !poll stop <poll-name> : stop a poll (owner)
 #   !poll add <poll-name> <item> : add item to poll (owner)

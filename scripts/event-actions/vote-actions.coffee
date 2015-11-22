@@ -8,12 +8,17 @@
 #     roomName : {
 #       polls : {
 #         "poll_name": {
+#           name: "poll-name",
+#           description: "poll description text",
+#           user: "poll-owner-username",
+#           started: false,
+#           room: "room-name",
 #           items: {
 #             "item-key" : {
 #               name: "item-key
 #               votes: [] // holds the usernames that voted (maybe more data)
 #             }
-#           }
+#           },
 #           "voters": [] // holds the usernames that voted (maybe more data)
 #         }
 #       }
@@ -39,8 +44,10 @@ module.exports =
     logger.debug("poll_new")
     brain = robot.brain
     pollName = data.match[2].toLowerCase()
+    pollDescription = data.match[3]
     pollData =
       name: pollName
+      description: pollDescription
       user: user.name.toLowerCase()
       room: data.message.room.toLowerCase()
       started: false
@@ -174,6 +181,9 @@ module.exports =
 
     msg = "Poll Status: #{pollName}\n"
     msg += "\tstarted: #{poll.started}\n"
+    if (poll.description)?
+      msg += "\t#{poll.description}\n"
+
     logger.debug("poll: #{inspect poll}")
     index = 0
     for own x, value of poll[keys.items]
@@ -209,9 +219,13 @@ module.exports =
         return
       # a poll with fewer than 2 items should not be able to be started.
       msg = ""
+      if (poll.description)?
+        msg += "#{poll.description}\n"
+      else
+        msg += "#{poll.name}\n"
       index = 0
       for own x, value of poll[keys.items]
-        msg += "#{index+1}: #{poll[keys.items][x][keys.item_name]}\n"
+        msg += "\n\t#{index+1}: #{poll[keys.items][x][keys.item_name]}"
         index++
 
       msg += "\nVote by using: !vote #{pollName} <number|name>"
@@ -253,6 +267,7 @@ createPoll = (brain, data, cb) ->
       name: data.name
       user: data.user
       room: data.room
+      description: data.description
       items: {}
       started: false
     brain.set keys.root, root
