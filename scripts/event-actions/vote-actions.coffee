@@ -56,6 +56,7 @@ module.exports =
     callback "I haven't learned how to stop a poll yet"
     return
   poll_results: (data, callback) ->
+    # https://chart.googleapis.com/chart?chxt=x,y&cht=bvs&chd=t:5,7,9,1&chco=76A4FB&chls=2.0&chs=250x250&chxl=0:|Jan|Feb|Mar|Apr|May
     callback "I haven't learned how to list a poll's result yet"
     return
   poll_pause: (data, callback) ->
@@ -84,16 +85,17 @@ module.exports =
       logger.debug("polls: #{inspect roomPolls}")
       msg = ""
       for own x, value of roomPolls
-        logger.debug("x: #{inspect x}")
-        msg += "!poll list #{x}\n"
+        p = roomPolls[x]
+        if (p.started)
+          msg += "!poll list #{x}\n"
       callback msg
       return
     else # get specific poll
       poll = getPoll(brain,queryData)
-      if !(poll)?
+      if (!(poll)?) || !poll.started
         callback "@#{user.name}: I do not have a poll named \"#{pollName}\""
         return
-
+      # a poll with fewer than 2 items should not be able to be started.
       msg = ""
       index = 0
       max = poll[keys.items].length
@@ -138,12 +140,7 @@ createPoll = (brain, data, cb) ->
       name: data.name
       owner: data.owner
       room: data.room
-      items: [
-        {
-          name: "test"
-          votes: 0
-        }
-      ]
+      items: []
       started: false
     brain.set keys.root, root
     cb(true)
