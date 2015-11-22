@@ -32,12 +32,13 @@
 #   spajus
 #   patcon
 #   parkr
-eventActions = require('./event-actions/powerup-actions')
-eventTypesRaw = "push,pull_request:opened"
-eventTypes = []
+
 inspect = (require('util')).inspect
 url = require('url')
 querystring = require('querystring')
+eventActions = require('./event-actions/all')
+eventTypesRaw = "push,pull_request:opened"
+eventTypes = []
 
 if eventTypesRaw?
   ###
@@ -59,7 +60,6 @@ else
   console.warn("powerup is not setup to receive any events.")
 
 module.exports = (robot) ->
-
   robot.router.post "/hubot/powerup", (req, res) ->
     query = querystring.parse(url.parse(req.url).query)
 
