@@ -80,6 +80,7 @@ module.exports =
     isOwner = isPollOwner brain, queryData
     if !isOwner
       callback "@#{user.name}: You do not own this poll, you cannot start it."
+      return
     poll = getPoll(brain,queryData)
 
     # if the poll doesnt exist, or it has been started
@@ -209,6 +210,7 @@ module.exports =
       name: itemName
       votes: []
     brain.set keys.root, root
+    brain.save()
     callback "@#{user.name}: I have added \"#{itemName}\" to poll \"#{pollName}\""
     return
   poll_remove: (data, callback) ->
