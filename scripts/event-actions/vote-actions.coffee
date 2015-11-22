@@ -1,7 +1,7 @@
 #! /usr/bin/env coffee
 
 
-# new|start|stop|results|pause|add|remove|list|delete|status
+# new|start|stop|results|add|remove|list|delete|status
 
 # polls_root : {
 #   rooms: {
@@ -27,6 +27,7 @@
 # }
 
 inspect = (require('util')).inspect
+format = (require("util")).format
 keys =
   root : "polls_root"
   rooms : "rooms"
@@ -94,13 +95,39 @@ module.exports =
       itemCount++
     if itemCount < 2
       callback "@#{user.name}: The poll \"#{pollName}\" must have at least 2 items to start it."
+      return
     root = getRoot brain, queryData
     root[keys.rooms][queryData.room][keys.polls][queryData.name]["started"] = true
     brain.set keys.root, root
     listPolls(data,callback)
     return
   poll_stop: (data, callback) ->
-    callback "I haven't learned how to stop a poll yet"
+    user = data.message.user
+    robot = data.robot
+    logger = robot.logger
+    brain = robot.brain
+    pollName = (data.match[2] || "").toLowerCase()
+
+    queryData =
+      user: user.name
+      room: data.message.room.toLowerCase()
+      name: pollName
+    isOwner = isPollOwner brain, queryData
+    if !isOwner
+      callback "@#{user.name}: You do not own this poll, you cannot stop it."
+    poll = getPoll(brain,queryData)
+
+    # if the poll doesnt exist, or it has been started
+    if (!(poll)? )
+      callback "@#{user.name}: I do not have a poll named \"#{pollName}\" that I can stop."
+      return
+    if !poll.started
+      callback "@#{user.name}: The poll \"#{pollName}\" is already stopped."
+      return
+    root = getRoot brain, queryData
+    root[keys.rooms][queryData.room][keys.polls][queryData.name]["started"] = false
+    brain.set keys.root, root
+    callback "@#{user.name}: I have stopped the poll \"#{pollName}\"."
     return
   poll_results: (data, callback) ->
     # https://chart.googleapis.com/chart?cht=bvg&chd=t:10,4,8,1,7&chco=76A4FB&chxt=x,y&chxl=0:|0|1|2|3|4|1:|0|10&chs=450x125&chds=0,10&chbh=30,15,35
@@ -118,10 +145,36 @@ module.exports =
     if !(poll)?
       callback "@#{user.name}: I don't have any results for a poll named \"#{pollName}\""
       return
-    callback "Poll Results (#{pollName}):\nhttps://chart.googleapis.com/chart?cht=bvg&chd=t:10,4,8,1,7&chco=76A4FB&chxt=x,y&chxl=0:|0|1|2|3|4|1:|0|10&chs=450x125&chds=0,10&chbh=30,15,35"
-    return
-  poll_pause: (data, callback) ->
-    callback "I haven't learned how to pause a poll yet"
+    itemsArray = []
+    for own x, value of poll.items
+      itemsArray[itemsArray.length] = x
+    if itemsArray.length < 2
+      # this poll can not be "resulted"
+      return
+
+    # chd = values
+    # chxl:0 = x:labels
+    # chxl:1 = y:labels
+    # chds = chard data scaling
+    # chbh = bar width,padding,spacing
+    # chg = chart graph lines
+    # chts = chart title style
+    # chtt = chart title text
+    chart = "https://chart.googleapis.com/chart?cht=bvg&chd=t:%s&chco=76A4FB&chxt=x,y&chxl=0:|%s|1:|0|%s&chs=450x175&chds=0,%s&chbh=30,15,35&chg=0,%s,0,0&chtt=%s&chts=777777,14,c"
+    pollResults = getPollResults brain, queryData
+    logger.debug("results: #{inspect pollResults}")
+    high = pollResults.high + 5
+    values = []
+    for idx in [0..itemsArray.length] by 1
+      values[values.length] = pollResults.counts[idx]
+    chartData =
+      values: values.join(",")
+      labels: pollResults.keys.join("|")
+      max: high
+    vals = chartData.values
+    gline = Math.floor(100 / high)
+    pollDesc = poll.description || poll.name
+    callback "Poll Results (#{pollName}):\n#{format(chart,vals.substring(0,vals.length-1), chartData.labels, chartData.max, chartData.max, gline, pollDesc)}"
     return
   poll_add: (data, callback) ->
     user = data.message.user
@@ -285,6 +338,31 @@ getPoll = (brain, data) ->
     return null
   result = root[keys.rooms][data.room][keys.polls][data.name]
   return result
+getPollResults = (brain, data) ->
+  poll = getPoll(brain,data)
+  logger.debug("poll: #{poll}")
+  if !(poll)?
+    return {}
+  results = []
+  keys = []
+  counts = []
+  max = 0
+  items = poll.items
+  for own x, value of items
+    logger.debug("x: #{x}")
+    cnt = items[x].votes.length
+    keys[keys.length] = x
+    counts[counts.length] = items[x].votes.length
+    if cnt > max
+      max = cnt
+    results[results.length] =
+      "#{x}": items[x].votes.length
+  out =
+    high: max
+    results: results
+    keys: keys
+    counts: counts
+  return out
 getRoot = (brain, data) ->
   r = (brain.get keys.root)
   if r?
@@ -297,7 +375,10 @@ isPollOwner = (brain, data) ->
   if !(pollExists brain, data)
     return false
   p = getPoll brain, data
-  return (p != null && p.user == data.user)?
+  return ((p != null && p.user == data.user) || isHubotOwner(brain,data))?
+isHubotOwner = (brain, data) ->
+  owner = process.env["HUBOT_OWNER"] || process.env["HUBOT_SLACK_BOTNAME"] || "__N_O__O_N_E__O_W_N_S__ME__"
+  return ((owner)? && owner == data.user)?
 deletePoll = (brain, data, cb) ->
   if !pollExists(brain,data)
     cb(false)
