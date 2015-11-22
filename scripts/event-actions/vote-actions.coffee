@@ -111,12 +111,13 @@ module.exports =
     pollName = (data.match[2] || "").toLowerCase()
 
     queryData =
-      user: user.name
+      user: user.name.toLowerCase()
       room: data.message.room.toLowerCase()
       name: pollName
     isOwner = isPollOwner brain, queryData
     if !isOwner
       callback "@#{user.name}: You do not own this poll, you cannot stop it."
+      return
     poll = getPoll(brain,queryData)
 
     # if the poll doesnt exist, or it has been started
@@ -450,10 +451,10 @@ isPollOwner = (brain, data) ->
   if !(pollExists brain, data)
     return false
   p = getPoll brain, data
-  return ((p != null && p.user == data.user) || isHubotOwner(brain,data))?
+  return ((p != null && p.user.toLowerCase() == data.user.toLowerCase()) || isHubotOwner(brain,data))
 isHubotOwner = (brain, data) ->
   owner = process.env["HUBOT_OWNER"] || process.env["HUBOT_SLACK_BOTNAME"] || "__N_O__O_N_E__O_W_N_S__ME__"
-  return ((owner)? && owner == data.user)?
+  return ((owner)? && owner.toLowerCase() == data.user.toLowerCase())?
 deletePoll = (brain, data, cb) ->
   if !pollExists(brain,data)
     cb(false)
