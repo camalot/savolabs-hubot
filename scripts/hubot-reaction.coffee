@@ -8,15 +8,16 @@
 #   None
 #
 # Commands:
-#   !reply <tag>
+#   !<reply|react> <tag>
 #   hubot what do you think about ...
 #   hubot how do you feel about ...
 #   hubot can i get your opinion about ...
 #
 # Author:
 #   ryan conrad
-format = (require("util")).format
+
 module.exports = (robot) ->
+  format = (require("util")).format
   apiUrl = "http://replygif.net/api/gifs?%s=%s&api-key=39YAprx5Yi"
   reactions = ["yes","no","happy","sad","thumbs+up","thumbs+down","flirt","angry","awkward","wtf","ok","exclamation+mark","question+mark","ellipsis","meh","misc"]
   replyPattern = /^\!(?:reply|react(?:ion)?) (.+)$/i
