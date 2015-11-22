@@ -173,7 +173,7 @@ module.exports =
       max: high
     vals = chartData.values
     gline = Math.floor(100 / high)
-    pollDesc = poll.description || poll.name
+    pollDesc = urlEncode(poll.description || poll.name)
     callback "Poll Results (#{pollName}):\n#{format(chart,vals.substring(0,vals.length-1), chartData.labels, chartData.max, chartData.max, gline, pollDesc)}"
     return
   poll_add: (data, callback) ->
