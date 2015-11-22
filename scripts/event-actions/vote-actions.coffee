@@ -2,29 +2,45 @@
 
 
 # new|start|stop|results|pause|add|remove|list|delete
-inspect = (require('util')).inspect
 
+# polls_root : {
+#   rooms: {
+#     roomName : {
+#       polls : {
+#         ""
+#       }
+#     }
+#   }
+# }
+
+inspect = (require('util')).inspect
+keys =
+  root : "polls_root"
+  rooms : "rooms"
+  polls : "polls"
+  items : "items"
+  item_name : "name"
+logger = null
 module.exports =
+
   poll_new: (data, callback) ->
     user = data.message.user
     robot = data.robot
+    logger = robot.logger
+    logger.debug("poll_new")
     brain = robot.brain
     pollName = data.match[2].toLowerCase()
-    pollKey = getPollKey data.message.room, user.name, pollName
-    robot.logger.debug pollKey
-    pexists = pollExists brain, pollKey
-    robot.logger.debug "poll exists: #{pexists}"
-    if pexists
-      callback "@#{user.name}: You already have an active poll named \"#{pollName}\""
-      return
     pollData =
       name: pollName
-      user: user.name
-      room: data.message.room
-      key: pollKey
-      active: true
-      started: false,
-      items: []
+      owner: user.name.toLowerCase()
+      room: data.message.room.toLowerCase()
+      started: false
+
+    pexists = pollExists brain, pollData
+    robot.logger.debug "poll exists: #{pexists}"
+    if pexists
+      callback "@#{user.name}: there is already an active poll named \"#{pollName}\" in this channel. Please choose a different name."
+      return
     robot.logger.debug "#{inspect pollData}"
     createPoll brain, pollData, (cb) ->
       if cb?
@@ -52,35 +68,131 @@ module.exports =
     callback "I haven't learned how to remove an item yet"
     return
   poll_list: (data, callback) ->
+    user = data.message.user
+    robot = data.robot
+    logger = robot.logger
+    logger.debug("poll_list")
+    brain = robot.brain
+    pollName = (data.match[2] || "").toLowerCase()
+    queryData =
+      owner: user.name
+      room: data.message.room.toLowerCase()
+      name: pollName
 
+    if pollName == ""
+      roomPolls = getRoomPolls(brain, queryData)
+      logger.debug("polls: #{inspect roomPolls}")
+      msg = ""
+      for own x, value of roomPolls
+        logger.debug("x: #{inspect x}")
+        msg += "!poll list #{x}\n"
+      callback msg
+      return
+    else # get specific poll
+      poll = getPoll(brain,queryData)
+      if !(poll)?
+        callback "@#{user.name}: I do not have a poll named \"#{pollName}\""
+        return
+
+      msg = ""
+      index = 0
+      max = poll[keys.items].length
+      for index in [0..max-1] by 1
+        msg += "#{index+1}: #{poll[keys.items][index][keys.item_name]}\n"
+
+      msg += "\nVote by using: !vote #{pollName} <number|name>"
+
+      callback msg
     return
   poll_delete: (data, callback) ->
     user = data.message.user
     robot = data.robot
+    logger = robot.logger
     brain = robot.brain
     pollName = data.match[2].toLowerCase()
-    pollKey = getPollKey data.message.room, user.name, pollName
-    robot.logger.debug pollKey
-    pexists = pollExists brain, pollKey
-    robot.logger.debug "poll exists: #{pexists}"
+    pollData =
+      name: pollName
+      owner: user.name.toLowerCase()
+      room: data.message.room.toLowerCase()
+    pexists = pollExists brain, pollData
     if !pexists
-      callback "@#{user.name}: I cannot find a poll named #{pollName}"
+      callback "@#{user.name}: I cannot find a poll named \"#{pollName}\""
       return
-    deletePoll brain, pollKey
-    callback "@#{user.name}: I have deleted the poll \"#{pollName}\""
+    canDelete = canDeletePoll brain, pollData
+    if !canDelete
+      callback "@#{user.name}: sorry, you are not the owner of the poll \"#{pollName}\". You can't delete someone else's poll."
+      return
+    deletePoll brain, pollData, (cb) ->
+      if cb
+        callback "@#{user.name}: I have deleted the poll \"#{pollName}\""
+      else
+        callback "@#{user.name}: There was some catastrophic error that caused time to skip. As a result, I couldn't delete \"#{pollName}\"."
     return
 createPoll = (brain, data, cb) ->
   try
-    brain.set data.key, data
+    roomPolls = getRoomPolls brain, data
+    if roomPolls[data.name]?
+      cb(false)
+    root = getRoot brain, data
+    root[keys.rooms][data.room][keys.polls][data.name] =
+      name: data.name
+      owner: data.owner
+      room: data.room
+      items: [
+        {
+          name: "test"
+          votes: 0
+        }
+      ]
+      started: false
+    brain.set keys.root, root
     cb(true)
   catch error
+    logger.error(error)
     cb(false)
   return
-getPoll = (brain, key) ->
-  return (brain.get key)
-deletePoll = (brain, key) ->
-  brain.set key, null
-pollExists = (brain, key) ->
-  return (brain.get key)?
-getPollKey = (room, user, poll) ->
-  return "poll_#{room.toLowerCase()}_#{user.toLowerCase()}_#{poll.toLowerCase()}"
+getRoomPolls = (brain, data) ->
+  root = getRoot brain, data
+  rooms = root[keys.rooms]
+  if (!rooms? || !rooms[data.room]? || !rooms[data.room][keys.polls]?)
+    root[keys.rooms] =
+      "#{data.room}":
+        "#{keys.polls}": {}
+    brain.set keys.root, root
+    return {}
+  return rooms[data.room][keys.polls]
+getPoll = (brain, data) ->
+  root = getRoot brain, data
+  rooms = root[keys.rooms]
+  if (!rooms? || !rooms[data.room]? || !rooms[data.room][keys.polls]? || !rooms[data.room][keys.polls][data.name]?)
+    return null
+  result = root[keys.rooms][data.room][keys.polls][data.name]
+  return result
+getRoot = (brain, data) ->
+  r = (brain.get keys.root)
+  if r?
+    return r
+  else
+    r =
+      rooms: {}
+  brain.set keys.root, r
+canDeletePoll = (brain, data) ->
+  if !(pollExists brain, data)
+    return false
+  p = getPoll brain, data
+  return (p != null && p.owner == data.owner)?
+deletePoll = (brain, data, cb) ->
+  if !pollExists(brain,data)
+    cb(false)
+    return
+  if !canDeletePoll(brain,data)?
+    cb(false)
+    return
+  root = getRoot brain, data
+  p = root[keys.rooms][data.room][keys.polls]
+  delete p[data.name]
+  brain.set keys.root, root
+  cb(true)
+pollExists = (brain, data) ->
+  p = (getPoll(brain, data))?
+  return p
