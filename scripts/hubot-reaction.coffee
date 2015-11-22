@@ -54,7 +54,7 @@ module.exports = (robot) ->
 
   getTag = (tag, callback) ->
     xtag = tag
-    if (/smoke\+you/i).test(xtag)
+    if (/smoke(\+|\s|-)you/i).test(xtag)
       xtag = "fuck+you"
     url = format(apiUrl,"tag", xtag)
     robot.http(url)
@@ -68,4 +68,4 @@ module.exports = (robot) ->
         return
 
   parseTag = (txt) ->
-    txt.toLowerCase().replace(/[^\w \-]+/g,'').replace(/--+/g, '').replace(/\s/g,'+')
+    return txt.toLowerCase().replace(/[^\w \-]+/g,'').replace(/--+/g, '').replace(/\s/g,'+')
