@@ -1,4 +1,6 @@
 [
-  "respecttables",
-  "buzzwords"
+  "hubot-respecttables",
+  "hubot-buzzwords",
+  "hubot-powerup",
+  "hubot-reaction"
 ]

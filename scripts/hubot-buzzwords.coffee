@@ -8,12 +8,15 @@
 #   None
 #
 # Commands:
-#   "*buzzwords*" - Hubot likes buzzwords
+#   !buzzword - Hubot likes buzzwords
+#   !no[ooooooooooooo...]
 #
 # Author:
 #   ryan conrad
 
 module.exports = (robot) ->
+  robot.hear /^\!no{1,}$/i, (msg) ->
+    msg.send "http://www.nooooooooooooooo.com/vader.jpg"
   randomBuzzWord = [
     "https://media1.giphy.com/media/13IKMvjqRIysHm/200.gif",
     "https://media3.giphy.com/media/Plo5B2kahH06k/200.gif",
@@ -23,7 +26,6 @@ module.exports = (robot) ->
     "https://media1.giphy.com/media/ntpzwedUHOycM/200.gif",
     "https://media3.giphy.com/media/8dmB4qPhZudOM/200.gif",
     "https://media1.giphy.com/media/EldfH1VJdbrwY/200.gif",
-    "http://www.nooooooooooooooo.com/vader.jpg",
     "https://media3.giphy.com/media/1L5YuA6wpKkNO/200.gif",
     "https://media1.giphy.com/media/xTiTnoHt2NwerFMsCI/200.gif",
     "https://media2.giphy.com/media/s1sW9X81SbMVa/200.gif",
@@ -45,5 +47,5 @@ module.exports = (robot) ->
     "https://media2.giphy.com/media/ALJI2lzh2Plcs/200.gif",
     "https://media2.giphy.com/media/9biCoFP1V2xZm/200.gif"
   ]
-  robot.respond /(agile|orchestration|waterfall|automation|ansible|chef|puppet|azure|cloud|continuous (delivery|integration)|iaas|paas|iac|scrum|kanban)/i, (msg) ->
+  robot.hear /^\!buzzword(\s?.+)?/i, (msg) ->
     msg.send msg.random randomBuzzWord
