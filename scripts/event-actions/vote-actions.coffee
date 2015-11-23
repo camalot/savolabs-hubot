@@ -38,7 +38,7 @@
 
 inspect = (require('util')).inspect
 format = (require("util")).format
-rollbar = (require("rollbar-helper.coffee"))
+rollbar = (require("./rollbar-helper"))
 keys =
   root : "polls_root"
   rooms : "rooms"
