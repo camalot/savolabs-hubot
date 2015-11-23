@@ -91,7 +91,7 @@ imgur_search = (msg, robot) ->
           robot.logger.debug("I found nothing")
           return
         randImg = images[Math.floor(Math.random() * images.length)]
-        img_url = (randImg.gifv || randImg.mp4 || || randImg.webm || randImg.link)
+        img_url = (randImg.gifv || randImg.mp4 || randImg.webm || randImg.link)
         msg.send "#{randImg.title}\n#{img_url}"
       else
         robot.logger.error "imgur: error: #{query_url} returned #{res.statusCode}: #{body}"
