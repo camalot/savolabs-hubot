@@ -83,7 +83,7 @@ module.exports =
 
         root = getRoot brain, queryData
         logger.debug("find polls: [#{keys.root}][#{keys.rooms}][#{data.room}][#{keys.polls}]")
-        polls = root[keys.rooms][data.room][keys.polls]
+        polls = root[keys.rooms][queryData.room][keys.polls]
         count = 0
         for own x, value of polls
           count++
