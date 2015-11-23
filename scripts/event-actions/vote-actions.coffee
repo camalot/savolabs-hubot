@@ -582,14 +582,16 @@ listPolls = (data, callback) ->
     roomPolls = getRoomPolls(brain, queryData)
     logger.debug("polls: #{inspect roomPolls}")
     msg = ""
+    pollCount = 0
     for own x, value of roomPolls
+      pollCount++
       p = roomPolls[x]
       if (p.started)
-        msg += "!poll list #{x}\n"
-    if msg.length == 0
-      callback "It seems that I don't have any active polls"
+        msg += "\n\t!poll list #{x}\n"
+    if pollCount == 0
+      callback "@#{user.name}: I am sorry, it seems that I don't have any active polls."
     else
-      callback msg
+      callback format("@#{user.name}: I have #{pollCount} active poll%s #{msg}", pollCount > 1 ? "s" : "")
     return
   else # get specific poll
     poll = getPoll(brain,queryData)
