@@ -1,7 +1,7 @@
 #! /usr/bin/env coffee
 
 
-# new|start|stop|results|add|remove|list|delete|status|
+# new|start|stop|results|add|remove|list|delete|status|room
 
 # polls_root : {
 #   rooms: {
@@ -48,7 +48,35 @@ keys =
   voters: "voters"
 logger = null
 module.exports =
+  poll_room: (data, callback) ->
+    # gets the polls in the room:
+    user = data.message.user
+    robot = data.robot
+    logger = robot.logger
+    brain = robot.brain
+    action = (data.match[2]||"list").toLowerCase()
+    subAction = (data.match[3]||"").toLowerCase()
+    queryData =
+      name: pollName
+      user: user.name.toLowerCase()
+      room: data.message.room.toLowerCase()
 
+    if !isHubotOwner(brain,queryData)
+      return
+    switch action
+      when "list"
+        polls = getRoomPolls(brain, queryData)
+        if polls == {}
+          return
+        msg = "@#{queryData.user}: Here are the polls that were created in this channel:"
+        for own x, value of polls
+          p = polls[x]
+          msg += "\n\t#{p.name}: created: #{p.created} started: #{p.started} owner: #{p.user}"
+        callback msg
+      when "clear"
+        # delete all polls
+        return
+    return
   poll_new: (data, callback) ->
     user = data.message.user
     robot = data.robot

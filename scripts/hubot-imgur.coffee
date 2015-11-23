@@ -1,5 +1,5 @@
 # Description:
-#   simple room poll
+#   imgur search and reactions
 #
 # Dependencies:
 #   None
@@ -9,6 +9,7 @@
 #
 # Commands:
 #   hubot imgur <search> - get random image from imgur based on the search
+#   !imgur <search> - get random image from imgur based on the search
 #   hubot reactgif nope - get random gif from reactiongifarchives.imgur.com
 #   hubot reactgif child fail - get random gif from reactiongifarchives.imgur.com
 #   hubot reactgif fuck - get random gif from reactiongifarchives.imgur.com
@@ -29,6 +30,7 @@
 #   hubot reactgif no fucks - get random gif from reactiongifarchives.imgur.com
 #   hubot reactgif laughing - get random gif from reactiongifarchives.imgur.com
 #   hubot reactgif self inflict - get random gif from reactiongifarchives.imgur.com
+#
 # Author:
 #   ryan conrad
 
