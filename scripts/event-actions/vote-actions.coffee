@@ -388,6 +388,7 @@ votePollItem = (brain, data, keyOrIndex, callback) ->
     return
   else if !poll.started
     logger.debug("poll \"#{data.name}\" is not started.")
+    callback "@#{data.user}: You can't vote on \"#{data.name}\". The poll has not been started."
     return
   root = getRoot brain, data
   logger.debug("find voters: [#{keys.root}][#{keys.rooms}][#{data.room}][#{keys.polls}][#{data.name}][#{keys.voters}]")
