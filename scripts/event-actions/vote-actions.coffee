@@ -111,7 +111,7 @@ module.exports =
     pollName = (data.match[2] || "").toLowerCase()
 
     queryData =
-      user: user.name.toLowerCase()
+      user: user.name
       room: data.message.room.toLowerCase()
       name: pollName
     isOwner = isPollOwner brain, queryData
@@ -445,14 +445,14 @@ getPollResults = (brain, data) ->
     logger.debug("no poll to retrieve: return empty {}")
     return {}
   results = []
-  keys = []
+  resultKeys = []
   counts = []
   max = 0
   items = poll.items
   for own x, value of items
     cnt = items[x].votes.length
     logger.debug("add key: #{x}")
-    keys[keys.length] = x
+    resultKeys[resultKeys.length] = x
     counts[counts.length] = items[x].votes.length
     if cnt > max
       logger.debug("max changed to #{cnt}")
@@ -462,7 +462,7 @@ getPollResults = (brain, data) ->
   out =
     high: max
     results: results
-    keys: keys
+    keys: resultKeys
     counts: counts
   logger.debug("poll results: #{inspect out}")
   return out
