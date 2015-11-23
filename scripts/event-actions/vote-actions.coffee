@@ -78,7 +78,7 @@ module.exports =
 
       when "clear"
         # delete all polls
-        if subAction !== "-force"
+        if subAction != "-force"
           return
 
         root = getRoot brain, queryData
