@@ -57,7 +57,6 @@ module.exports =
     action = (data.match[2]||"list").toLowerCase()
     subAction = (data.match[3]||"").toLowerCase()
     queryData =
-      name: pollName
       user: user.name.toLowerCase()
       room: data.message.room.toLowerCase()
 
