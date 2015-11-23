@@ -67,13 +67,29 @@ module.exports =
         polls = getRoomPolls(brain, queryData)
         if polls == {}
           return
-        msg = "@#{queryData.user}: Here are the polls that were created in this channel:"
+        pre_msg = "@#{queryData.user}: Here are the polls that were created in this channel:"
+        msg = ""
         for own x, value of polls
           p = polls[x]
           msg += "\n\t#{p.name}: {created: #{p.created}; started: #{p.started}; owner: #{p.user};}"
-        callback msg
+        if msg.length > 0
+          callback "#{pre_msg}#{msg}"
+        return
+
       when "clear"
         # delete all polls
+        if subAction !== "-force"
+          return
+
+        root = getRoot brain, queryData
+        logger.debug("find polls: [#{keys.root}][#{keys.rooms}][#{data.room}][#{keys.polls}]")
+        polls = root[keys.rooms][data.room][keys.polls]
+        count = 0
+        for own x, value of polls
+          count++
+          delete polls[x]
+        callback "@#{queryData.user}: I have deleted #{count} #{count == 1 ? "poll" : "polls"}"
+        brain.set keys.root, root
         return
     return
   poll_new: (data, callback) ->
