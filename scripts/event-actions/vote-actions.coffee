@@ -38,7 +38,6 @@
 
 inspect = (require('util')).inspect
 format = (require("util")).format
-rollbar = (require("./rollbar-helper"))
 keys =
   root : "polls_root"
   rooms : "rooms"
@@ -84,7 +83,6 @@ module.exports =
 
         root = getRoot brain, queryData
         logger.debug("find polls: [#{keys.root}][#{keys.rooms}][#{data.room}][#{keys.polls}]")
-        rollbar.reportMessage("find polls: [#{keys.root}][#{keys.rooms}][#{data.room}][#{keys.polls}]")
         polls = root[keys.rooms][queryData.room][keys.polls]
         count = 0
         for own x, value of polls
