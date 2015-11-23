@@ -21,6 +21,7 @@ module.exports = (robot) ->
       "┬─┬╯(°□° ╯)",
       "┬─┬/(.□./）",
       "‎┬─┬ノ(ಥ益ಥノ）",
+      "(ง°ل͜°)ง┬─┬",
       "┬─┬ノ( ^_^ノ)",
       "┬─┬ ╯('□' ╯)",
       "┬─┬ノ(._.ノ)",
@@ -28,7 +29,7 @@ module.exports = (robot) ->
       "┬─┬ლ(⌒-⌒ლ)",
       "Please respect the table ┬─┬﻿ ノ(._.ノ)",
       "Please respect the table ┬─┬ノ(ಠ_ಠノ)",
-      "https://media2.giphy.com/media/mKxsVRaYEXUgo/200.gif",
+      "http://i.imgur.com/pMFDPcg.gifv",
   ]
   robot.hear /(┻━┻|flip(ped)? tables?)/i, (msg) ->
     msg.send msg.random respects

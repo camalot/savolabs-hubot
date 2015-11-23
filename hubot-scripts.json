@@ -2,5 +2,9 @@
   "hubot-respecttables",
   "hubot-buzzwords",
   "hubot-powerup",
-  "hubot-reaction"
+  "hubot-reaction",
+  "hubot-vote",
+  "hubot-roll",
+  "hubot-8ball",
+  "hubot-imgur"
 ]

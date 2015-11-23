@@ -36,7 +36,7 @@
 inspect = (require('util')).inspect
 url = require('url')
 querystring = require('querystring')
-eventActions = require('./event-actions/all')
+eventActions = require('./event-actions/powerup-actions')
 eventTypesRaw = "push,pull_request:opened"
 eventTypes = []
 
