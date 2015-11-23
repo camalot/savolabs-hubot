@@ -214,6 +214,7 @@ module.exports =
     root[keys.rooms][queryData.room][keys.polls][queryData.name][keys.items][itemNameKey] =
       name: itemName
       votes: []
+    logger.debug("save root: #{inspect root}")
     brain.set keys.root, root
     callback "@#{user.name}: I have added \"#{itemName}\" to poll \"#{pollName}\""
     brain.save()
@@ -347,6 +348,7 @@ createPoll = (brain, data, cb) ->
       items: {}
       started: false
       voters: []
+    logger.debug("save root after create: #{inspect root}")
     brain.set keys.root, root
     cb(true)
   catch error
@@ -355,38 +357,48 @@ createPoll = (brain, data, cb) ->
   return
 getRoomPolls = (brain, data) ->
   root = getRoot brain, data
+  logger.debug("find rooms: [#{keys.root}][#{keys.rooms}]")
   rooms = root[keys.rooms]
+  logger.debug("#{inspect rooms}")
   if (!rooms || !rooms[data.room] || !rooms[data.room][keys.polls])
+    logger.debug("creating object set for room [#{data.room}][#{keys.polls}]")
     root[keys.rooms] =
       "#{data.room}":
         "#{keys.polls}": {}
+    logger.debug("save root: #{keys.root}: #{inspect root}")
     brain.set keys.root, root
     return {}
   return rooms[data.room][keys.polls]
 getPoll = (brain, data) ->
   root = getRoot brain, data
+  logger.debug("find rooms: [#{keys.root}][#{keys.rooms}]")
   rooms = root[keys.rooms]
   if (!rooms || !rooms[data.room] || !rooms[data.room][keys.polls] || !rooms[data.room][keys.polls][data.name])
+    logger.debug("poll not found. [#{keys.root}][#{keys.rooms}][#{data.room}][#{keys.polls}][#{data.name}]")
     return null
   result = root[keys.rooms][data.room][keys.polls][data.name]
+  logger.debug("return poll: #{inspect result}")
   return result
 votePollItem = (brain, data, keyOrIndex, callback) ->
 
   poll = getPoll(brain,data)
   if !poll
+    logger.debug("no poll found: #{data}")
     callback "@#{data.user}: I was unable to find the poll \"#{data.name}\""
     return
   else if !poll.started
     logger.debug("poll \"#{data.name}\" is not started.")
     return
   root = getRoot brain, data
+  logger.debug("find voters: [#{keys.root}][#{keys.rooms}][#{data.room}][#{keys.polls}][#{data.name}][#{keys.voters}]")
   voters = root[keys.rooms][data.room][keys.polls][data.name][keys.voters] || []
-
+  logger.debug("voters: #{inspect voters}")
   filtered = (voters.filter (i) -> i.toLowerCase() == data.user.toLowerCase())
   if(filtered.length > 0)
     callback "@#{data.user}: Sorry, but you already casted your vote. No do-overs."
     return
 
+  logger.debug("find items: [#{keys.root}][#{keys.rooms}][#{data.room}][#{keys.polls}][#{data.name}][#{keys.items}]")
   items = root[keys.rooms][data.room][keys.polls][data.name][keys.items]
 
   index = parseInt(keyOrIndex)
@@ -421,13 +433,16 @@ votePollItem = (brain, data, keyOrIndex, callback) ->
     time: new Date
     room: data.room
     user: data.user.toLowerCase()
+
+  logger.debug("save root: #{keys.root} #{inspect root}")
   brain.set keys.root, root
   callback "@#{data.user}: I have recorded your vote for \"#{lookup}\" in poll \"#{data.name}\""
   return
 getPollResults = (brain, data) ->
   poll = getPoll(brain,data)
-  logger.debug("poll: #{poll}")
+  logger.debug("poll: #{inspect poll}")
   if !poll
+    logger.debug("no poll to retrieve: return empty {}")
     return {}
   results = []
   keys = []
@@ -436,9 +451,11 @@ getPollResults = (brain, data) ->
   items = poll.items
   for own x, value of items
     cnt = items[x].votes.length
+    logger.debug("add key: #{x}")
     keys[keys.length] = x
     counts[counts.length] = items[x].votes.length
     if cnt > max
+      logger.debug("max changed to #{cnt}")
       max = cnt
     results[results.length] =
       "#{x}": items[x].votes.length
@@ -447,42 +464,53 @@ getPollResults = (brain, data) ->
     results: results
     keys: keys
     counts: counts
+  logger.debug("poll results: #{inspect out}")
   return out
 getRoot = (brain, data) ->
+  logger.debug("get root: #{keys.root}")
   r = (brain.get keys.root)
   if r
+    logger.debug("root exists: #{inspect r}")
     return r
   else
+    logger.debug("creating new root")
     r =
       "#{keys.rooms}":
         "#{data.room}":
           "#{keys.polls}"
+  logger.debug("saving root: #{keys.root}")
   brain.set keys.root, r
 isPollOwner = (brain, data) ->
   if !(pollExists brain, data)
-    logger.warn("no poll found: #{inspect data}")
+    logger.debug("no poll found: #{inspect data}")
     return false
   p = getPoll brain, data
-  logger.warn("poll: #{inspect data}")
-  return ((p != null && p.user.toLowerCase() == data.user.toLowerCase()) || isHubotOwner(brain,data))
+  logger.debug("poll: #{inspect data}")
+  return ((p && p.user.toLowerCase() == data.user.toLowerCase()) || isHubotOwner(brain,data))
 isHubotOwner = (brain, data) ->
   owner = process.env["HUBOT_OWNER"] || process.env["HUBOT_SLACK_BOTNAME"] || "__N_O__O_N_E__O_W_N_S__ME__"
-  return ((owner) && owner.toLowerCase() == data.user.toLowerCase())
+  result = ((owner) && owner.toLowerCase() == data.user.toLowerCase())
+  logger.debug("isHubotOwner: owner: {#{owner.toLowerCase()}}; user: {#{data.user.toLowerCase()}}")
+  return result
 deletePoll = (brain, data, cb) ->
   if !pollExists(brain,data)
+    logger.debug("no poll: can't delete nothing.")
     cb(false)
     return
   if !isPollOwner(brain,data)
+    logger.debug("not the owner: shame on you")
     cb(false)
     return
   root = getRoot brain, data
+  logger.debug("find polls: [#{keys.root}][#{keys.rooms}][#{data.room}][#{keys.polls}]")
   p = root[keys.rooms][data.room][keys.polls]
   delete p[data.name]
+  logger.debug("save root: #{keys.root} : #{inspect root}")
   brain.set keys.root, root
   cb(true)
 pollExists = (brain, data) ->
   p = (getPoll(brain, data))
-  return p
+  return p != null && p != undefined
 listPolls = (data, callback) ->
   user = data.message.user
   robot = data.robot
@@ -494,7 +522,7 @@ listPolls = (data, callback) ->
     room: data.message.room.toLowerCase()
     name: pollName
 
-  if pollName == ""
+  if pollName.length == 0
     roomPolls = getRoomPolls(brain, queryData)
     logger.debug("polls: #{inspect roomPolls}")
     msg = ""
