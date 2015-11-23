@@ -60,7 +60,7 @@ module.exports =
       return
     robot.logger.debug "#{inspect pollData}"
     createPoll brain, pollData, (cb) ->
-      if cb?
+      if cb
         callback "@#{user.name}: I have created the poll \"#{pollName}\". use !poll add #{pollName} <item> to add items."
       else
         robot.logger.debug("error while creating poll \"#{pollName}\"")
@@ -84,7 +84,7 @@ module.exports =
     poll = getPoll(brain,queryData)
 
     # if the poll doesnt exist, or it has been started
-    if (!(poll)? )
+    if !poll
       callback "@#{user.name}: I do not have a poll named \"#{pollName}\" that I can start."
       return
     if poll.started
@@ -121,7 +121,7 @@ module.exports =
     poll = getPoll(brain,queryData)
 
     # if the poll doesnt exist, or it has been started
-    if (!(poll)? )
+    if !poll
       callback "@#{user.name}: I do not have a poll named \"#{pollName}\" that I can stop."
       return
     if !poll.started
@@ -146,7 +146,7 @@ module.exports =
       name: pollName
     poll = getPoll(brain,queryData)
 
-    if !(poll)?
+    if !poll
       callback "@#{user.name}: I don't have any results for a poll named \"#{pollName}\""
       return
     itemsArray = []
@@ -199,7 +199,7 @@ module.exports =
     itemNameKey = itemName.toLowerCase()
     poll = getPoll(brain,queryData)
     # if the poll doesnt exist, or it has been started
-    if (!(poll)? || poll.started )
+    if !poll || poll.started
       callback "@#{user.name}: I do not have a poll named \"#{pollName}\" that I can add an item to."
       return
     isOwner = isPollOwner brain, queryData
@@ -208,7 +208,7 @@ module.exports =
       return
     root = getRoot brain, queryData
     items = root[keys.rooms][queryData.room][keys.polls][queryData.name][keys.items]
-    if (items[itemNameKey])?
+    if items[itemNameKey]
       callback "@#{user.name}: I can't add that item. It already exists."
       return
     root[keys.rooms][queryData.room][keys.polls][queryData.name][keys.items][itemNameKey] =
@@ -230,12 +230,12 @@ module.exports =
       user: user.name
       room: data.message.room.toLowerCase()
       name: pollName
-    if !(itemName || pollName)?
+    if !(itemName || pollName)
       return
     itemNameKey = itemName.toLowerCase()
     poll = getPoll(brain,queryData)
     # if the poll doesnt exist, or it has been started
-    if (!(poll)? || poll.started )
+    if !poll || poll.started
       callback "@#{user.name}: I do not have a poll named \"#{pollName}\" that I can add an item to."
       return
     isOwner = isPollOwner brain, queryData
@@ -244,7 +244,7 @@ module.exports =
       return
     root = getRoot brain, queryData
     items = root[keys.rooms][queryData.room][keys.polls][queryData.name][keys.items]
-    if !(items[itemNameKey])?
+    if !(items[itemNameKey])
       callback "@#{user.name}: I can't remove that item. It doesn't exist."
       return
     delete root[keys.rooms][queryData.room][keys.polls][queryData.name][keys.items][itemNameKey]
@@ -264,7 +264,7 @@ module.exports =
       name: pollName
     isOwner = isPollOwner brain, queryData
     poll = getPoll(brain,queryData)
-    if (!(poll)?)
+    if !poll
       callback "@#{user.name}: I do not have an active poll named \"#{pollName}\""
       return
     if !isOwner
@@ -273,7 +273,7 @@ module.exports =
 
     msg = "Poll Status: #{pollName}\n"
     msg += "\tstarted: #{poll.started}\n"
-    if (poll.description)?
+    if poll.description
       msg += "\t#{poll.description}\n"
 
     logger.debug("poll: #{inspect poll}")
@@ -336,7 +336,7 @@ module.exports =
 createPoll = (brain, data, cb) ->
   try
     roomPolls = getRoomPolls brain, data
-    if roomPolls[data.name]?
+    if roomPolls[data.name]
       cb(false)
     root = getRoot brain, data
     root[keys.rooms][data.room][keys.polls][data.name] =
@@ -356,7 +356,7 @@ createPoll = (brain, data, cb) ->
 getRoomPolls = (brain, data) ->
   root = getRoot brain, data
   rooms = root[keys.rooms]
-  if (!rooms? || !rooms[data.room]? || !rooms[data.room][keys.polls]?)
+  if (!rooms || !rooms[data.room] || !rooms[data.room][keys.polls])
     root[keys.rooms] =
       "#{data.room}":
         "#{keys.polls}": {}
@@ -366,14 +366,14 @@ getRoomPolls = (brain, data) ->
 getPoll = (brain, data) ->
   root = getRoot brain, data
   rooms = root[keys.rooms]
-  if (!rooms? || !rooms[data.room]? || !rooms[data.room][keys.polls]? || !rooms[data.room][keys.polls][data.name]?)
+  if (!rooms || !rooms[data.room] || !rooms[data.room][keys.polls] || !rooms[data.room][keys.polls][data.name])
     return null
   result = root[keys.rooms][data.room][keys.polls][data.name]
   return result
 votePollItem = (brain, data, keyOrIndex, callback) ->
 
   poll = getPoll(brain,data)
-  if !(poll)?
+  if !poll
     callback "@#{data.user}: I was unable to find the poll \"#{data.name}\""
     return
   else if !poll.started
@@ -403,7 +403,7 @@ votePollItem = (brain, data, keyOrIndex, callback) ->
         break
       i++
   # this will probably never happen
-  if !(lookup)?
+  if !lookup
     logger.debug("lookup is empty")
     callback "@#{data.user}: I was unable to locate the item \"#{keyOrIndex}\" in the poll \"#{data.name}\""
     return
@@ -427,7 +427,7 @@ votePollItem = (brain, data, keyOrIndex, callback) ->
 getPollResults = (brain, data) ->
   poll = getPoll(brain,data)
   logger.debug("poll: #{poll}")
-  if !(poll)?
+  if !poll
     return {}
   results = []
   keys = []
@@ -450,7 +450,7 @@ getPollResults = (brain, data) ->
   return out
 getRoot = (brain, data) ->
   r = (brain.get keys.root)
-  if r?
+  if r
     return r
   else
     r =
@@ -467,12 +467,12 @@ isPollOwner = (brain, data) ->
   return ((p != null && p.user.toLowerCase() == data.user.toLowerCase()) || isHubotOwner(brain,data))
 isHubotOwner = (brain, data) ->
   owner = process.env["HUBOT_OWNER"] || process.env["HUBOT_SLACK_BOTNAME"] || "__N_O__O_N_E__O_W_N_S__ME__"
-  return ((owner)? && owner.toLowerCase() == data.user.toLowerCase())?
+  return ((owner) && owner.toLowerCase() == data.user.toLowerCase())
 deletePoll = (brain, data, cb) ->
   if !pollExists(brain,data)
     cb(false)
     return
-  if !isPollOwner(brain,data)?
+  if !isPollOwner(brain,data)
     cb(false)
     return
   root = getRoot brain, data
@@ -481,7 +481,7 @@ deletePoll = (brain, data, cb) ->
   brain.set keys.root, root
   cb(true)
 pollExists = (brain, data) ->
-  p = (getPoll(brain, data))?
+  p = (getPoll(brain, data))
   return p
 listPolls = (data, callback) ->
   user = data.message.user
@@ -509,12 +509,12 @@ listPolls = (data, callback) ->
     return
   else # get specific poll
     poll = getPoll(brain,queryData)
-    if (!(poll)?) || !poll.started
+    if !poll || !poll.started
       callback "@#{user.name}: I do not have an active poll named \"#{pollName}\""
       return
     # a poll with fewer than 2 items should not be able to be started.
     msg = ""
-    if (poll.description)?
+    if (poll.description)
       msg += "#{poll.description}\n"
     else
       msg += "#{poll.name}\n"
