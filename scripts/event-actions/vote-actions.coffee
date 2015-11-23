@@ -1,7 +1,7 @@
 #! /usr/bin/env coffee
 
 
-# new|start|stop|results|add|remove|list|delete|status
+# new|start|stop|results|add|remove|list|delete|status|
 
 # polls_root : {
 #   rooms: {
@@ -43,7 +43,6 @@ module.exports =
     user = data.message.user
     robot = data.robot
     logger = robot.logger
-    logger.debug("poll_new")
     brain = robot.brain
     pollName = data.match[2].toLowerCase()
     pollDescription = data.match[3]
@@ -286,6 +285,11 @@ module.exports =
     brain.save()
     return
   poll_list: (data, callback) ->
+    user = data.message.user
+    robot = data.robot
+    logger = robot.logger
+    brain = robot.brain
+
     listPolls(data,callback)
     brain.save()
     return
@@ -496,7 +500,10 @@ listPolls = (data, callback) ->
       p = roomPolls[x]
       if (p.started)
         msg += "!poll list #{x}\n"
-    callback msg
+    if msg.length == 0
+      callback "It seems that I don't have any active polls"
+    else
+      callback msg
     return
   else # get specific poll
     poll = getPoll(brain,queryData)
