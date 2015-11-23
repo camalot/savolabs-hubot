@@ -169,11 +169,14 @@ module.exports =
     logger.debug("results: #{inspect pollResults}")
     high = pollResults.high + 5
     values = []
+    labelsEncoded = []
+    for idx in [0..pollResults.keys.length] by 1
+      labelsEncoded[labelsEncoded.length] = encodeURIComponent("#{pollResults.keys[idx]} (#{pollResults.counts[idx]})")
     for idx in [0..itemsArray.length] by 1
       values[values.length] = pollResults.counts[idx]
     chartData =
       values: values.join(",")
-      labels: pollResults.keys.join("|")
+      labels: labelsEncoded.join("|")
       max: high
     vals = chartData.values
     gline = Math.floor(100 / high)
@@ -396,7 +399,7 @@ votePollItem = (brain, data, keyOrIndex, callback) ->
   logger.debug("voters: #{inspect voters}")
   filtered = (voters.filter (i) -> i.toLowerCase() == data.user.toLowerCase())
   if(filtered.length > 0)
-    callback "@#{data.user}: Sorry, but you already casted your vote. No do-overs."
+    callback "@#{data.user}: Sorry, but you already cast your vote. No do-overs."
     return
 
   logger.debug("find items: [#{keys.root}][#{keys.rooms}][#{data.room}][#{keys.polls}][#{data.name}][#{keys.items}]")
