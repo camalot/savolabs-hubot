@@ -88,7 +88,7 @@ module.exports =
         for own x, value of polls
           count++
           delete polls[x]
-        callback "@#{queryData.user}: I have deleted #{count} #{count == 1 ? "poll" : "polls"}"
+        callback "@#{queryData.user}: I have deleted #{count} #{if count == 1 then "poll" else "polls"}"
         brain.set keys.root, root
         return
     return
@@ -607,7 +607,7 @@ listPolls = (data, callback) ->
     if pollCount == 0
       callback "@#{user.name}: I am sorry, it seems that I don't have any active polls."
     else
-      callback format("@#{user.name}: I have #{pollCount} active poll%s #{msg}", pollCount > 1 ? "s" : "")
+      callback format("@#{user.name}: I have #{pollCount} active poll%s #{msg}", if pollCount > 1 then "s" else "")
     return
   else # get specific poll
     poll = getPoll(brain,queryData)
