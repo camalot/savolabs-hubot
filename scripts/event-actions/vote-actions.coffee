@@ -70,7 +70,7 @@ module.exports =
         msg = "@#{queryData.user}: Here are the polls that were created in this channel:"
         for own x, value of polls
           p = polls[x]
-          msg += "\n\t#{p.name}: created: #{p.created} started: #{p.started} owner: #{p.user}"
+          msg += "\n\t#{p.name}: {created: #{p.created}; started: #{p.started}; owner: #{p.user};}"
         callback msg
       when "clear"
         # delete all polls
@@ -493,7 +493,7 @@ addPollItem = (brain, data, callback) ->
     votes: []
   logger.debug("saving root: #{keys.root}: #{inspect root}")
   brain.set keys.root, root
-  callback "@#{data.user.name}: I have added \"#{data.item}\" to poll \"#{data.name}\""
+  callback "@#{data.user}: I have added \"#{data.item}\" to poll \"#{data.name}\""
 removePollItem = (brain, data, callback) ->
   if (data.item == "" || data.name == "") || !(data.item || data.name)
     logger.debug("one is empty: (item: #{data.item} : poll: #{data.name})")
