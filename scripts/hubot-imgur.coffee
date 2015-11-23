@@ -86,12 +86,12 @@ imgur_search = (msg, robot) ->
       if (res.statusCode is 200)
         imgur = JSON.parse body
         images = imgur.data.filter (x) ->
-          return !x.nsfw
+          return !x.nsfw && !x.is_album
         if images.length == 0
           robot.logger.debug("I found nothing")
           return
         randImg = images[Math.floor(Math.random() * images.length)]
-        img_url = (randImg.gifv || randImg.mp4 || randImg.link)
+        img_url = (randImg.gifv || randImg.mp4 || || randImg.webm || randImg.link)
         msg.send "#{randImg.title}\n#{img_url}"
       else
         robot.logger.error "imgur: error: #{query_url} returned #{res.statusCode}: #{body}"
