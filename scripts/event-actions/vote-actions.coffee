@@ -13,13 +13,23 @@
 #           user: "poll-owner-username",
 #           started: false,
 #           room: "room-name",
+#           created: "2015-11-23T05:11:28.677Z"
+#
 #           items: {
 #             "item-key" : {
 #               name: "item-key
-#               votes: [] // holds the usernames that voted (maybe more data)
+#               user: "username" // should be the owner / or the hubot owner
+#               created: "2015-11-23T05:11:28.677Z"
+#               votes: [
+#                 {
+#                   time: "2015-11-23T05:11:28.677Z"
+#                   room: "room-name"
+#                   user: "username1"
+#                 }
+#               ] // holds the usernames that voted (maybe more data)
 #             }
 #           },
-#           "voters": [] // holds the usernames that voted (maybe more data)
+#           "voters": [ "username1", "username2" ] // holds the usernames that voted
 #         }
 #       }
 #     }
@@ -134,7 +144,6 @@ module.exports =
     brain.save()
     return
   poll_results: (data, callback) ->
-    # https://chart.googleapis.com/chart?cht=bvg&chd=t:10,4,8,1,7&chco=76A4FB&chxt=x,y&chxl=0:|0|1|2|3|4|1:|0|10&chs=450x125&chds=0,10&chbh=30,15,35
     user = data.message.user
     robot = data.robot
     logger = robot.logger
@@ -196,30 +205,8 @@ module.exports =
       user: user.name.toLowerCase()
       room: data.message.room.toLowerCase()
       name: pollName
-    if (itemName == "" || pollName == "")
-      logger.debug("item: #{itemName} : poll: #{pollName}")
-      return
-    itemNameKey = itemName.toLowerCase()
-    poll = getPoll(brain,queryData)
-    # if the poll doesnt exist, or it has been started
-    if !poll || poll.started
-      callback "@#{user.name}: I do not have a poll named \"#{pollName}\" that I can add an item to."
-      return
-    isOwner = isPollOwner brain, queryData
-    if !isOwner
-      callback "@#{user.name}: You do not have permission to add an item to this poll, it is owned by @#{poll.user}"
-      return
-    root = getRoot brain, queryData
-    items = root[keys.rooms][queryData.room][keys.polls][queryData.name][keys.items]
-    if items[itemNameKey]
-      callback "@#{user.name}: I can't add that item. It already exists."
-      return
-    root[keys.rooms][queryData.room][keys.polls][queryData.name][keys.items][itemNameKey] =
-      name: itemName
-      votes: []
-    logger.debug("save root: #{inspect root}")
-    brain.set keys.root, root
-    callback "@#{user.name}: I have added \"#{itemName}\" to poll \"#{pollName}\""
+      item: itemName
+    addPollItem brain, queryData, callback
     brain.save()
     return
   poll_remove: (data, callback) ->
@@ -234,26 +221,8 @@ module.exports =
       user: user.name
       room: data.message.room.toLowerCase()
       name: pollName
-    if !(itemName || pollName)
-      return
-    itemNameKey = itemName.toLowerCase()
-    poll = getPoll(brain,queryData)
-    # if the poll doesnt exist, or it has been started
-    if !poll || poll.started
-      callback "@#{user.name}: I do not have a poll named \"#{pollName}\" that I can add an item to."
-      return
-    isOwner = isPollOwner brain, queryData
-    if !isOwner
-      callback "@#{user.name}: You do not have permission to add an item to this poll, it is owned by @#{poll.user}"
-      return
-    root = getRoot brain, queryData
-    items = root[keys.rooms][queryData.room][keys.polls][queryData.name][keys.items]
-    if !(items[itemNameKey])
-      callback "@#{user.name}: I can't remove that item. It doesn't exist."
-      return
-    delete root[keys.rooms][queryData.room][keys.polls][queryData.name][keys.items][itemNameKey]
-    brain.set keys.root, root
-    callback "@#{user.name}: I have removed \"#{itemName}\" from poll \"#{pollName}\""
+      item: itemName
+    removePollItem brain, queryData, callback
     brain.save()
     return
   poll_status: (data, callback) ->
@@ -349,6 +318,7 @@ createPoll = (brain, data, cb) ->
       room: data.room
       description: data.description
       items: {}
+      created: new Date
       started: false
       voters: []
     logger.debug("save root after create: #{inspect root}")
@@ -470,6 +440,61 @@ getPollResults = (brain, data) ->
     counts: counts
   logger.debug("poll results: #{inspect out}")
   return out
+addPollItem = (brain, data, callback) ->
+  if (data.item == "" || data.name == "") || !(data.item || data.name)
+    logger.debug("one is empty: (item: #{data.item} : poll: #{data.name})")
+    return
+  itemKey = data.item.toLowerCase()
+  poll = getPoll(brain,data)
+  # if the poll doesnt exist, or it has been started
+  if !poll || poll.started
+    callback "@#{data.user}: I do not have a poll named \"#{data.name}\" that I can add an item to."
+    return
+  isOwner = isPollOwner brain, data
+  if !isOwner
+    callback "@#{data.user}: You do not have permission to add an item to this poll, it is owned by @#{poll.user}"
+    return
+  root = getRoot brain, data
+  items = root[keys.rooms][data.room][keys.polls][data.name][keys.items]
+  if items[itemKey]
+    callback "@#{data.user}: I can't add that item. It already exists."
+    return
+  root[keys.rooms][data.room][keys.polls][data.name][keys.items][itemKey] =
+    name: data.item
+    created: new Date # when it was added
+    user: data.user # user that added it (should always be the owner, or the hubot owner :D)
+    votes: []
+  logger.debug("saving root: #{keys.root}: #{inspect root}")
+  brain.set keys.root, root
+  callback "@#{data.user.name}: I have added \"#{data.item}\" to poll \"#{data.name}\""
+removePollItem = (brain, data, callback) ->
+  if (data.item == "" || data.name == "") || !(data.item || data.name)
+    logger.debug("one is empty: (item: #{data.item} : poll: #{data.name})")
+    return
+  itemKey = data.item.toLowerCase()
+  poll = getPoll(brain,data)
+  # if the poll doesnt exist, or it has been started
+  if !poll || poll.started
+    callback "@#{data.user}: I do not have a poll named \"#{data.name}\" that I can add an item to."
+    return
+  isOwner = isPollOwner brain, data
+  if !isOwner
+    callback "@#{data.user}: You do not have permission to add an item to this poll, it is owned by @#{poll.user}"
+    return
+  root = getRoot brain, data
+  items = root[keys.rooms][data.room][keys.polls][data.name][keys.items]
+  theItem = items[itemKey]
+  if !theItem
+    callback "@#{data.user}: I can't remove that item. It doesn't exist."
+    return
+  if theItem.votes && theItem.votes.length > 0
+    callback "@#{data.user}: I can't remove that item. There are votes on it."
+    return
+  logger.debug("removing item: [#{keys.rooms}][#{data.room}][#{keys.polls}][#{data.name}][#{keys.items}][#{itemKey}]")
+  delete root[keys.rooms][data.room][keys.polls][data.name][keys.items][itemKey]
+  logger.debug("saving root: #{keys.root}: #{inspect root}")
+  brain.set keys.root, root
+  callback "@#{data.user}: I have removed \"#{data.item}\" from poll \"#{data.name}\""
 getRoot = (brain, data) ->
   logger.debug("get root: #{keys.root}")
   r = (brain.get keys.root)

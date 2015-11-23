@@ -3,5 +3,7 @@
   "hubot-buzzwords",
   "hubot-powerup",
   "hubot-reaction",
-  "hubot-vote"
+  "hubot-vote",
+  "hubot-roll",
+  "hubot-8ball"
 ]
