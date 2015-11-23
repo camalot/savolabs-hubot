@@ -65,7 +65,7 @@ module.exports =
         callback "@#{user.name}: I have created the poll \"#{pollName}\". use !poll add #{pollName} <item> to add items."
       else
         robot.logger.debug("error while creating poll \"#{pollName}\"")
-
+    brain.save()
     return
   poll_start: (data, callback) ->
     user = data.message.user
@@ -102,6 +102,7 @@ module.exports =
     root[keys.rooms][queryData.room][keys.polls][queryData.name]["started"] = true
     brain.set keys.root, root
     listPolls(data,callback)
+    brain.save()
     return
   poll_stop: (data, callback) ->
     user = data.message.user
@@ -131,6 +132,7 @@ module.exports =
     root[keys.rooms][queryData.room][keys.polls][queryData.name]["started"] = false
     brain.set keys.root, root
     callback "@#{user.name}: I have stopped the poll \"#{pollName}\"."
+    brain.save()
     return
   poll_results: (data, callback) ->
     # https://chart.googleapis.com/chart?cht=bvg&chd=t:10,4,8,1,7&chco=76A4FB&chxt=x,y&chxl=0:|0|1|2|3|4|1:|0|10&chs=450x125&chds=0,10&chbh=30,15,35
@@ -178,6 +180,7 @@ module.exports =
     gline = Math.floor(100 / high)
     pollDesc = encodeURIComponent(poll.description || poll.name)
     callback "Poll Results (#{pollName}):\n#{format(chart,vals.substring(0,vals.length-1), chartData.labels, chartData.max, chartData.max, gline, pollDesc)}"
+    brain.save()
     return
   poll_add: (data, callback) ->
     user = data.message.user
@@ -213,8 +216,8 @@ module.exports =
       name: itemName
       votes: []
     brain.set keys.root, root
-    brain.save()
     callback "@#{user.name}: I have added \"#{itemName}\" to poll \"#{pollName}\""
+    brain.save()
     return
   poll_remove: (data, callback) ->
     user = data.message.user
@@ -248,6 +251,7 @@ module.exports =
     delete root[keys.rooms][queryData.room][keys.polls][queryData.name][keys.items][itemNameKey]
     brain.set keys.root, root
     callback "@#{user.name}: I have removed \"#{itemName}\" from poll \"#{pollName}\""
+    brain.save()
     return
   poll_status: (data, callback) ->
     user = data.message.user
@@ -279,9 +283,12 @@ module.exports =
       msg += "\t#{index+1}: #{poll[keys.items][x][keys.item_name]}\n"
       index++
     callback msg
+    brain.save()
     return
   poll_list: (data, callback) ->
     listPolls(data,callback)
+    brain.save()
+    return
   poll_delete: (data, callback) ->
     user = data.message.user
     robot = data.robot
@@ -306,6 +313,7 @@ module.exports =
         callback "@#{user.name}: I have deleted the poll \"#{pollName}\""
       else
         callback "@#{user.name}: There was some catastrophic error that caused time to skip. As a result, I couldn't delete \"#{pollName}\"."
+    brain.save()
     return
   poll_vote: (data, callback) ->
     msg = data.msg
@@ -319,6 +327,7 @@ module.exports =
       room: msg.message.room.toLowerCase()
       name: voteInfo.name.toLowerCase()
     votePollItem(brain, queryData, voteInfo.query, callback)
+    brain.save()
     return
 createPoll = (brain, data, cb) ->
   try
@@ -348,7 +357,6 @@ getRoomPolls = (brain, data) ->
       "#{data.room}":
         "#{keys.polls}": {}
     brain.set keys.root, root
-    brain.save()
     return {}
   return rooms[data.room][keys.polls]
 getPoll = (brain, data) ->
@@ -410,7 +418,6 @@ votePollItem = (brain, data, keyOrIndex, callback) ->
     room: data.room
     user: data.user.toLowerCase()
   brain.set keys.root, root
-  brain.save()
   callback "@#{data.user}: I have recorded your vote for \"#{lookup}\" in poll \"#{data.name}\""
   return
 getPollResults = (brain, data) ->
