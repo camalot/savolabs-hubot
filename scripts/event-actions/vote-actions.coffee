@@ -460,8 +460,10 @@ getRoot = (brain, data) ->
   brain.set keys.root, r
 isPollOwner = (brain, data) ->
   if !(pollExists brain, data)
+    logger.warn("no poll found: #{inspect data}")
     return false
   p = getPoll brain, data
+  logger.warn("poll: #{inspect data}")
   return ((p != null && p.user.toLowerCase() == data.user.toLowerCase()) || isHubotOwner(brain,data))
 isHubotOwner = (brain, data) ->
   owner = process.env["HUBOT_OWNER"] || process.env["HUBOT_SLACK_BOTNAME"] || "__N_O__O_N_E__O_W_N_S__ME__"
