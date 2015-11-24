@@ -239,7 +239,7 @@ module.exports =
     gline = Math.floor(100 / high)
     pollDesc = (poll.description || poll.name)
     pollDescEsc = encodeURIComponent(pollDesc)
-    callback "Poll Results (#{pollDesc}):\n#{format(chart,vals.substring(0,vals.length-1), chartData.labels, chartData.max, chartData.max, gline, pollDescEsc)}"
+    callback "Poll Results (#{pollDesc}):\n#{format(chart,vals, chartData.labels, chartData.max, chartData.max, gline, pollDescEsc)}"
     brain.save()
     return
   poll_add: (data, callback) ->
