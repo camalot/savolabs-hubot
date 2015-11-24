@@ -216,24 +216,31 @@ module.exports =
     # chg = chart graph lines
     # chts = chart title style
     # chtt = chart title text
-    chart = "https://chart.googleapis.com/chart?cht=bvg&chd=t:%s&chco=76A4FB&chxt=x,y&chxl=0:|%s|1:|0|%s&chs=450x175&chds=0,%s&chbh=30,15,35&chg=0,%s,0,0&chtt=%s&chts=777777,14,c"
+    chart = "https://chart.googleapis.com/chart?cht=bvg&chd=t:%s&chco=76A4FB&chxt=x,y&chxl=0:|%s|1:|0|%s&chs=775x275&chds=0,%s&chbh=30,15,45&chg=0,%s,0,0&chtt=%s&chts=777777,14,c"
     pollResults = getPollResults brain, queryData
     logger.debug("results: #{inspect pollResults}")
     high = pollResults.high + 5
     values = []
     labelsEncoded = []
-    for idx in [0..pollResults.keys.length] by 1
-      labelsEncoded[labelsEncoded.length] = encodeURIComponent("#{pollResults.keys[idx]} (#{pollResults.counts[idx]})")
-    for idx in [0..itemsArray.length] by 1
-      values[values.length] = pollResults.counts[idx]
+    for idx in [0..pollResults.keys.length-1] by 1
+      if pollResults.keys[idx]
+        fullLabel = pollResults.keys[idx]
+        if fullLabel.length > 7
+          fullLabel = "#{fullLabel.substring(0,7)}…"
+        labelsEncoded[labelsEncoded.length] = encodeURIComponent("#{fullLabel}(#{pollResults.counts[idx]})")
+        values[values.length] = pollResults.counts[idx]
+    # this adds N values so there are at least 10 values. Having the 10 values makes the chart be full width
+    for idx in [values.length..10] by 1
+      values[values.length] = 0
     chartData =
       values: values.join(",")
       labels: labelsEncoded.join("|")
       max: high
     vals = chartData.values
     gline = Math.floor(100 / high)
-    pollDesc = encodeURIComponent(poll.description || poll.name)
-    callback "Poll Results (#{pollName}):\n#{format(chart,vals.substring(0,vals.length-1), chartData.labels, chartData.max, chartData.max, gline, pollDesc)}"
+    pollDesc = (poll.description || poll.name)
+    pollDescEsc = encodeURIComponent(pollDesc)
+    callback "Poll Results (#{pollDesc}):\n#{format(chart,vals, chartData.labels, chartData.max, chartData.max, gline, pollDescEsc)}"
     brain.save()
     return
   poll_add: (data, callback) ->
@@ -484,6 +491,7 @@ getPollResults = (brain, data) ->
   logger.debug("poll results: #{inspect out}")
   return out
 addPollItem = (brain, data, callback) ->
+  maxItems = 10
   if (data.item == "" || data.name == "") || !(data.item || data.name)
     logger.debug("one is empty: (item: #{data.item} : poll: #{data.name})")
     return
@@ -501,6 +509,12 @@ addPollItem = (brain, data, callback) ->
   items = root[keys.rooms][data.room][keys.polls][data.name][keys.items]
   if items[itemKey]
     callback "@#{data.user}: I can't add that item. It already exists."
+    return
+  itemCount = 0
+  for own x, value of items
+    itemCount++
+  if itemCount >= maxItems
+    callback "@#{data.user}: I can't add any more items. #{maxItems} is the maximum number of poll options."
     return
   root[keys.rooms][data.room][keys.polls][data.name][keys.items][itemKey] =
     name: data.item
