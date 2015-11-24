@@ -223,12 +223,14 @@ module.exports =
     values = []
     labelsEncoded = []
     for idx in [0..pollResults.keys.length-1] by 1
-      if pollResults.keys[idx] && pollResults.counts[idx]
+      if pollResults.keys[idx]
         fullLabel = pollResults.keys[idx]
         if fullLabel.length > 7
           fullLabel = "#{fullLabel.substring(0,7)}…"
         labelsEncoded[labelsEncoded.length] = encodeURIComponent("#{fullLabel}(#{pollResults.counts[idx]})")
         values[values.length] = pollResults.counts[idx]
+    # for idx in [0..itemsArray.length-1] by 1
+    #   if pollResults.counts[idx]
     chartData =
       values: values.join(",")
       labels: labelsEncoded.join("|")
