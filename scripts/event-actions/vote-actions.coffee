@@ -216,24 +216,28 @@ module.exports =
     # chg = chart graph lines
     # chts = chart title style
     # chtt = chart title text
-    chart = "https://chart.googleapis.com/chart?cht=bvg&chd=t:%s&chco=76A4FB&chxt=x,y&chxl=0:|%s|1:|0|%s&chs=450x175&chds=0,%s&chbh=30,15,35&chg=0,%s,0,0&chtt=%s&chts=777777,14,c"
+    chart = "https://chart.googleapis.com/chart?cht=bvg&chd=t:%s&chco=76A4FB&chxt=x,y&chxl=0:|%s|1:|0|%s&chs=550x275&chds=0,%s&chbh=30,15,35&chg=0,%s,0,0&chtt=%s&chts=777777,14,c"
     pollResults = getPollResults brain, queryData
     logger.debug("results: #{inspect pollResults}")
     high = pollResults.high + 5
     values = []
     labelsEncoded = []
-    for idx in [0..pollResults.keys.length] by 1
-      labelsEncoded[labelsEncoded.length] = encodeURIComponent("#{pollResults.keys[idx]} (#{pollResults.counts[idx]})")
-    for idx in [0..itemsArray.length] by 1
-      values[values.length] = pollResults.counts[idx]
+    for idx in [0..pollResults.keys.length-1] by 1
+      if pollResults.keys[idx] && pollResults.counts[idx]
+        fullLabel = pollResults.keys[idx]
+        if fullLabel.length > 7
+          fullLabel = "#{fullLabel.substring(0,7)}…"
+        labelsEncoded[labelsEncoded.length] = encodeURIComponent("#{fullLabel}(#{pollResults.counts[idx]})")
+        values[values.length] = pollResults.counts[idx]
     chartData =
       values: values.join(",")
       labels: labelsEncoded.join("|")
       max: high
     vals = chartData.values
     gline = Math.floor(100 / high)
-    pollDesc = encodeURIComponent(poll.description || poll.name)
-    callback "Poll Results (#{pollName}):\n#{format(chart,vals.substring(0,vals.length-1), chartData.labels, chartData.max, chartData.max, gline, pollDesc)}"
+    pollDesc = (poll.description || poll.name)
+    pollDescEsc = encodeURIComponent(pollDesc)
+    callback "Poll Results (#{pollDesc}):\n#{format(chart,vals.substring(0,vals.length-1), chartData.labels, chartData.max, chartData.max, gline, pollDescEsc)}"
     brain.save()
     return
   poll_add: (data, callback) ->
