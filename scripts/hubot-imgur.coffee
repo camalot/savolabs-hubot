@@ -102,7 +102,7 @@ imgur_search = (msg, robot) ->
   search = msg.match[1]
   unless search
     return
-  query_url = format(api_url, "gallery","?q=#{encodeURIComponent(search)}&q_type=anigif")
+  query_url = format(api_url, "gallery/search","?q_any=#{encodeURIComponent(search)}&q_size=small|med|big")
   msg.http(query_url)
     .headers("Authorization": token)
     .get() (err, res, body) ->
@@ -115,6 +115,7 @@ imgur_search = (msg, robot) ->
           return
         randImg = images[Math.floor(Math.random() * images.length)]
         img_url = (randImg.gifv || randImg.mp4 || randImg.webm || randImg.link)
+        robot.logger.debug("query: #{query_url}")
         msg.send "#{randImg.title}\n#{img_url}"
       else
         robot.logger.error "imgur: error: #{query_url} returned #{res.statusCode}: #{body}"
