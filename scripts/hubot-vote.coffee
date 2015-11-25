@@ -19,6 +19,7 @@
 #   !poll status <poll-name> : gets the poll status (owner)
 #   !poll room list : Gets all polls in the channel (hubot-admin)
 #   !poll room clear -force : Delete all polls in the channel (hubot-admin)
+#   !poll stats : Displays a chart of some statistics
 #   !vote <poll-name> <item|number>
 # Author:
 #   ryan conrad
