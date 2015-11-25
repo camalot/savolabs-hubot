@@ -19,6 +19,7 @@
 #   !poll status <poll-name> : gets the poll status (owner)
 #   !poll room list : Gets all polls in the channel (hubot-admin)
 #   !poll room clear -force : Delete all polls in the channel (hubot-admin)
+#   !poll stats : Displays a chart of some statistics
 #   !vote <poll-name> <item|number>
 # Author:
 #   ryan conrad
@@ -27,7 +28,7 @@ inspect = (require('util')).inspect
 module.exports = (robot) ->
   robot.brain.setAutoSave(true)
   eventActions = require('./event-actions/vote-actions')
-  pollPattern = /^\!poll (?:(new|start|stop|results|add|remove|list|delete|status|room)\s?)(.+?)?(?:\s(.+))?$/i
+  pollPattern = /^\!poll (?:(new|start|stop|results|add|remove|list|delete|status|room|stats)\s?)(.+?)?(?:\s(.+))?$/i
   votePattern = /^!vote (.+?) (.+)$/i
   robot.hear votePattern, (msg) ->
     action = "vote"
