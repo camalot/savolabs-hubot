@@ -1,9 +1,14 @@
 #! /usr/bin/env coffee
 
 
-# new|start|stop|results|add|remove|list|delete|status|room
+# new|start|stop|results|add|remove|list|delete|status|room|stats
 
 # polls_root : {
+#   stats: {
+#     votes: 0,
+#     polls: 0
+#     items: 0
+#   }
 #   rooms: {
 #     roomName : {
 #       polls : {
@@ -46,7 +51,12 @@ keys =
   item_name : "name"
   item_votes : "votes"
   voters: "voters"
+  stats: "stats"
+  total_votes: "votes"
+  total_items: "items"
+  total_polls: "polls"
 logger = null
+
 module.exports =
   poll_room: (data, callback) ->
     # gets the polls in the room:
@@ -208,39 +218,22 @@ module.exports =
       # this poll can not be "resulted"
       return
 
-    # chd = values
-    # chxl:0 = x:labels
-    # chxl:1 = y:labels
-    # chds = chard data scaling
-    # chbh = bar width,padding,spacing
-    # chg = chart graph lines
-    # chts = chart title style
-    # chtt = chart title text
-    chart = "https://chart.googleapis.com/chart?cht=bvg&chd=t:%s&chco=76A4FB&chxt=x,y&chxl=0:|%s|1:|0|%s&chs=775x275&chds=0,%s&chbh=30,15,45&chg=0,%s,0,0&chtt=%s&chts=777777,14,c"
     pollResults = getPollResults brain, queryData
     logger.debug("results: #{inspect pollResults}")
-    high = pollResults.high + 5
     values = []
-    labelsEncoded = []
+    labels = []
     for idx in [0..pollResults.keys.length-1] by 1
       if pollResults.keys[idx]
-        fullLabel = pollResults.keys[idx]
-        if fullLabel.length > 7
-          fullLabel = "#{fullLabel.substring(0,7)}…"
-        labelsEncoded[labelsEncoded.length] = encodeURIComponent("#{fullLabel}(#{pollResults.counts[idx]})")
+        label = pollResults.keys[idx]
+        labels[labels.length] = label
         values[values.length] = pollResults.counts[idx]
     # this adds N values so there are at least 10 values. Having the 10 values makes the chart be full width
-    for idx in [values.length..10] by 1
-      values[values.length] = 0
     chartData =
-      values: values.join(",")
-      labels: labelsEncoded.join("|")
-      max: high
-    vals = chartData.values
-    gline = Math.floor(100 / high)
-    pollDesc = (poll.description || poll.name)
-    pollDescEsc = encodeURIComponent(pollDesc)
-    callback "Poll Results (#{pollDesc}):\n#{format(chart,vals, chartData.labels, chartData.max, chartData.max, gline, pollDescEsc)}"
+      values: values
+      labels: labels
+      title: (poll.description || poll.name)
+    chart = getChart chartData
+    callback "Poll Results (#{chartData.title}):\n#{chart}"
     brain.save()
     return
   poll_add: (data, callback) ->
@@ -356,6 +349,53 @@ module.exports =
     votePollItem(brain, queryData, voteInfo.query, callback)
     brain.save()
     return
+  poll_stats: (data, callback) ->
+    user = data.message.user
+    robot = data.robot
+    logger = robot.logger
+    brain = robot.brain
+    query =
+      user: user.name.toLowerCase()
+      room: data.message.room.toLowerCase()
+    s = getStats brain, query
+
+    cdata =
+      values: [s[keys.total_polls], s[keys.total_votes], s[keys.total_items]]
+      labels: ["Polls", "Votes", "Items"]
+      title: "Poll Statistics (Totals)"
+    chart = getChart cdata
+    callback "@#{query.user}: Here are my stats:\n#{chart}"
+    return
+getStats = (brain, data) ->
+  r = getRoot brain, data
+  s = r[keys.stats]
+  if !s
+    s =
+      "#{keys.total_votes}": 0
+      "#{keys.total_polls}": 0
+      "#{keys.total_items}": 0
+    r[keys.stats] = s
+    brain.set keys.root, r
+  return s
+setStats = (brain, data) ->
+  r = getRoot brain, data
+  s = r[keys.stats]
+  if !s
+    s =
+      "#{keys.total_votes}": 0
+      "#{keys.total_polls}": 0
+      "#{keys.total_items}": 0
+
+  r[keys.stats] = s
+
+  if data.votes > 0
+    s[keys.total_votes] += 1
+  if data.polls > 0
+    s[keys.total_polls] += 1
+  if data.items > 0
+    s[keys.total_items] += 1
+  logger.debug("Setting stats: #{inspect s}")
+  brain.set keys.root, r
 createPoll = (brain, data, cb) ->
   try
     roomPolls = getRoomPolls brain, data
@@ -372,7 +412,16 @@ createPoll = (brain, data, cb) ->
       started: false
       voters: []
     logger.debug("save root after create: #{inspect root}")
+
+    statsData =
+      "#{keys.total_votes}": 0
+      "#{keys.total_polls}": 1
+      "#{keys.total_items}": 0
+    setStats brain, statsData
+
     brain.set keys.root, root
+
+
     cb(true)
   catch error
     logger.error(error)
@@ -458,6 +507,12 @@ votePollItem = (brain, data, keyOrIndex, callback) ->
     room: data.room
     user: data.user.toLowerCase()
 
+  statsData =
+    "#{keys.total_votes}": 1
+    "#{keys.total_polls}": 0
+    "#{keys.total_items}": 0
+  setStats brain, statsData
+
   logger.debug("save root: #{keys.root} #{inspect root}")
   brain.set keys.root, root
   callback "@#{data.user}: I have recorded your vote for \"#{lookup}\" in poll \"#{data.name}\""
@@ -521,6 +576,14 @@ addPollItem = (brain, data, callback) ->
     created: new Date # when it was added
     user: data.user # user that added it (should always be the owner, or the hubot owner :D)
     votes: []
+
+  statsData =
+    "#{keys.total_votes}": 0
+    "#{keys.total_polls}": 0
+    "#{keys.total_items}": 1
+  setStats brain, statsData
+
+
   logger.debug("saving root: #{keys.root}: #{inspect root}")
   brain.set keys.root, root
   callback "@#{data.user}: I have added \"#{data.item}\" to poll \"#{data.name}\""
@@ -561,6 +624,10 @@ getRoot = (brain, data) ->
   else
     logger.debug("creating new root")
     r =
+      "#{keys.stats}":
+        "#{keys.total_votes}": 0
+        "#{keys.total_polls}": 0
+        "#{keys.total_items}": 0
       "#{keys.rooms}":
         "#{data.room}":
           "#{keys.polls}"
@@ -643,3 +710,60 @@ listPolls = (data, callback) ->
 
     callback msg
   return
+getChart = (data) ->
+
+  values = data.values || []
+  title = data.title || ""
+  labels = data.labels || []
+  encodedLabels = []
+
+  if values.length > 10
+    throw new Exception "Maximum number of values is 10"
+
+  # make sure that there are exactly 10 items
+  for idx in [values.length..9] by 1
+    values[values.length] = 0
+
+  for idx in [0..labels.length-1] by 1
+    fullLabel = labels[idx]
+    if fullLabel.length > 7
+      fullLabel = "#{fullLabel.substring(0,7)}…"
+    encodedLabels[encodedLabels.length] = encodeURIComponent("#{fullLabel}(#{values[idx]})")
+
+  high = 1
+  for idx in [0..values.length-1] by 1
+    if values[idx] > high
+      high = values[idx]
+  if high < 5
+    high = 5
+  step = Math.floor(high / 5)
+  if step == 0
+    step = 1
+  yaxis = []
+  for idx in [1..high] by step
+    yaxis[yaxis.length] = idx
+  if yaxis[yaxis.length-1] < high
+    yaxis[yaxis.length] = high
+  # chd = values
+  # chxl:0 = x:labels
+  # chxl:1 = y:labels
+  # chds = chard data scaling
+  # chbh = bar width,padding,spacing
+  # chg = chart graph lines
+  # chts = chart title style
+  # chtt = chart title text
+  # [0]: values
+  # [1]: labels
+  # [2]: max value
+  # [3]: max value
+  # [4]: gline: Math.floor(100 / max)
+  # [5]: title
+  cdata =
+    values: values.join(",")
+    labels: encodedLabels.join("|")
+    high: high
+    gline: Math.floor(100 / high)
+    title: encodeURIComponent(title)
+    yaxis: yaxis.join("|")
+  chart_url = "https://chart.googleapis.com/chart?cht=bvg&chd=t:%s&chco=76A4FB&chxt=x,y&chxl=0:|%s|1:|0|%s&chs=775x275&chds=0,%s&chbh=30,15,45&chg=0,%s,0,0&chtt=%s&chts=777777,14,c"
+  return format(chart_url,cdata.values, cdata.labels, cdata.yaxis, cdata.high, cdata.gline, cdata.title)
