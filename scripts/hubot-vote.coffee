@@ -5,7 +5,8 @@
 #   None
 #
 # Configuration:
-#   None
+#   HUBOT_OWNER
+#   HUBOT_SLACK_BOTNAME
 #
 # Commands:
 #   !poll new <poll-name> [description]: create a new poll
