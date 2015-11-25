@@ -56,7 +56,18 @@ keys =
   total_items: "items"
   total_polls: "polls"
 logger = null
-
+colors = [
+  "418CF0",
+  "008000",
+  "800080",
+  "01FF00",
+  "FF00FF",
+  "008080",
+  "FFFF00",
+  "01FFFF",
+  "FF0000",
+  "CECECE"
+]
 module.exports =
   poll_room: (data, callback) ->
     # gets the polls in the room:
@@ -232,6 +243,7 @@ module.exports =
       values: values
       labels: labels
       title: (poll.description || poll.name)
+      type: "p" # pie
     chart = getChart chartData
     callback "Poll Results (#{chartData.title}):\n#{chart}"
     brain.save()
@@ -715,6 +727,7 @@ getChart = (data) ->
   values = data.values || []
   title = data.title || ""
   labels = data.labels || []
+  type = data.type || "bvg"
   encodedLabels = []
 
   if values.length > 10
@@ -752,12 +765,14 @@ getChart = (data) ->
   # chg = chart graph lines
   # chts = chart title style
   # chtt = chart title text
-  # [0]: values
-  # [1]: labels
-  # [2]: max value
-  # [3]: max value
-  # [4]: gline: Math.floor(100 / max)
-  # [5]: title
+  # [0]: chartType
+  # [1]: values
+  # [2]: colors
+  # [3]: labels
+  # [4]: max value
+  # [5]: max value
+  # [6]: gline: Math.floor(100 / max)
+  # [7]: title
   cdata =
     values: values.join(",")
     labels: encodedLabels.join("|")
@@ -765,5 +780,7 @@ getChart = (data) ->
     gline: Math.floor(100 / high)
     title: encodeURIComponent(title)
     yaxis: yaxis.join("|")
-  chart_url = "https://chart.googleapis.com/chart?cht=bvg&chd=t:%s&chco=76A4FB&chxt=x,y&chxl=0:|%s|1:|0|%s&chs=775x275&chds=0,%s&chbh=30,15,45&chg=0,%s,0,0&chtt=%s&chts=777777,14,c"
-  return format(chart_url,cdata.values, cdata.labels, cdata.yaxis, cdata.high, cdata.gline, cdata.title)
+    colors: colors.join("|")
+    type: type
+  chart_url = "https://chart.googleapis.com/chart?cht=%s&chd=t:%s&chco=%s&chxt=x,y&chxl=0:|%s|1:|0|%s&chs=775x275&chds=0,%s&chbh=30,15,45&chg=0,%s,0,0&chtt=%s&chts=777777,14,c"
+  return format(chart_url,cdata.type, cdata.values, cdata.colors, cdata.labels, cdata.yaxis, cdata.high, cdata.gline, cdata.title)
