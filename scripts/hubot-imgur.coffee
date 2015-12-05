@@ -5,7 +5,7 @@
 #   None
 #
 # Configuration:
-#   None
+#   HUBOT_IMGUR_CLIENTID
 #
 # Commands:
 #   hubot imgur <search> - get random image from imgur based on the search
