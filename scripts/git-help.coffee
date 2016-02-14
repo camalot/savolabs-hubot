@@ -21,7 +21,7 @@
 jsdom = require("jsdom").jsdom
 
 module.exports = (robot) ->
-  robot.respond /!git help (.+)$/i, (msg) ->
+  robot.hear /^!git help (.+)$/i, (msg) ->
     topic = msg.match[1].toLowerCase()
 
     url = 'http://git-scm.com/docs/git-' + topic
@@ -46,7 +46,7 @@ module.exports = (robot) ->
         else
             msg.send "No git help page found for #{topic}."
       )
-  robot.respond /!git book$/i, (msg) -> 
+  robot.hear /^!git book$/i, (msg) -> 
     msg.send "*Pro Git* by _Scott Chacon and Ben Straub_ : http://git-scm.com/book/en/v2"
-  robot.respond /!git video$/i, (msg) ->
+  robot.hear /^!git video$/i, (msg) ->
     msg.send "*Getting Started with Git* with _Paul Litwin_ : https://channel9.msdn.com/Shows/Visual-Studio-Toolbox/Getting-Started-with-Git"  
