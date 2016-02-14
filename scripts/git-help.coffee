@@ -33,11 +33,11 @@ module.exports = (robot) ->
       ).defaultView
       jsdom.jQueryify(window, "http://code.jquery.com/jquery-2.2.0.js", () -> 
         $ = window.$
-        name = $.trim $('#header .sectionbody .paragraph').text()
+        name = $.trim $('#_name + .sectionbody .paragraph').text()
         desc = $.trim $('#_synopsis + .verseblock > .content').text()
 
         if name and desc
-            msg.send name
+            msg.send "*#{name}*"
             msg.send desc
             msg.send "See #{url} for details."
         else
