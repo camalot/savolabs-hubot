@@ -19,7 +19,7 @@
 jsdom = require("jsdom").jsdom
 
 module.exports = (robot) ->
-  robot.respond /git help (.+)$/i, (msg) ->
+  robot.respond /!git help (.+)$/i, (msg) ->
     topic = msg.match[1].toLowerCase()
 
     url = 'http://git-scm.com/docs/git-' + topic
@@ -34,8 +34,9 @@ module.exports = (robot) ->
       jsdom.jQueryify(window, "http://code.jquery.com/jquery-2.2.0.js", () -> 
         $ = window.$
         name = $.trim $('#_name + .sectionbody .paragraph').text()
+        robot.logger.debug "name: #{name}"
         desc = $.trim $('#_synopsis + .verseblock > .content').text()
-
+        robot.logger.debug "desc: #{desc}"
         if name and desc
             msg.send "*#{name}*"
             msg.send desc
@@ -43,3 +44,5 @@ module.exports = (robot) ->
         else
             msg.send "No git help page found for #{topic}."
       )
+  robot.respond /!git book$/i, (msg) -> 
+    msg.send "*Git Pro* by _Scott Chacon and Ben Straub_ : http://git-scm.com/book/en/v2"
