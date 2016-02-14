@@ -6,5 +6,6 @@
   "hubot-vote",
   "hubot-roll",
   "hubot-8ball",
-  "hubot-imgur"
+  "hubot-imgur",
+  "git-help"
 ]
