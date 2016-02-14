@@ -24,13 +24,13 @@ module.exports = (robot) ->
 
     url = 'http://git-scm.com/docs/git-' + topic
     msg.http(url).get() (err, res, body) ->
-      window = (jsdom body, null,
+      window = (jsdom body,
         features:
           FetchExternalResources: false
           ProcessExternalResources: false
           MutationEvents: false
           QuerySelector: false
-      ).createWindow()
+      ).defaultView
 
       $ = require("jquery").create(window)
       name = $.trim $('#header .sectionbody .paragraph').text()
