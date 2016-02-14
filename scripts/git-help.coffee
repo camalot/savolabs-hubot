@@ -46,3 +46,5 @@ module.exports = (robot) ->
       )
   robot.respond /!git book$/i, (msg) -> 
     msg.send "*Git Pro* by _Scott Chacon and Ben Straub_ : http://git-scm.com/book/en/v2"
+  robot.respond /!git video$/i, (msg) ->
+    msg.send "*Getting Started with Git* with _Paul Litwin_ : https://channel9.msdn.com/Shows/Visual-Studio-Toolbox/Getting-Started-with-Git"  
