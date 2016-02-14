@@ -31,14 +31,15 @@ module.exports = (robot) ->
           MutationEvents: false
           QuerySelector: false
       ).defaultView
+      jsdom.jQueryify(window, "http://code.jquery.com/jquery-2.2.0.js", () -> 
+        $ = window.$
+        name = $.trim $('#header .sectionbody .paragraph').text()
+        desc = $.trim $('#_synopsis + .verseblock > .content').text()
 
-      $ = require("jquery").create(window)
-      name = $.trim $('#header .sectionbody .paragraph').text()
-      desc = $.trim $('#_synopsis + .verseblock > .content').text()
-
-      if name and desc
-        msg.send name
-        msg.send desc
-        msg.send "See #{url} for details."
-      else
-        msg.send "No git help page found for #{topic}."
+        if name and desc
+            msg.send name
+            msg.send desc
+            msg.send "See #{url} for details."
+        else
+            msg.send "No git help page found for #{topic}."
+      )
