@@ -9,7 +9,9 @@
 #   None
 #
 # Commands:
-#   git help <topic>
+#   !git help <topic> : get help for specific _topic_.
+#   !git book : Pro Git ebook
+#   !git video : A Channel 9 video on getting started with git.
 #
 # Author:
 #   vquaiato, Jens Jahnke
@@ -45,6 +47,6 @@ module.exports = (robot) ->
             msg.send "No git help page found for #{topic}."
       )
   robot.respond /!git book$/i, (msg) -> 
-    msg.send "*Git Pro* by _Scott Chacon and Ben Straub_ : http://git-scm.com/book/en/v2"
+    msg.send "*Pro Git* by _Scott Chacon and Ben Straub_ : http://git-scm.com/book/en/v2"
   robot.respond /!git video$/i, (msg) ->
     msg.send "*Getting Started with Git* with _Paul Litwin_ : https://channel9.msdn.com/Shows/Visual-Studio-Toolbox/Getting-Started-with-Git"  
