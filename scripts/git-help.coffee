@@ -35,7 +35,7 @@ module.exports = (robot) ->
         $ = window.$
         name = $.trim $('#_name + .sectionbody .paragraph').text()
         robot.logger.debug "name: #{name}"
-        desc = $.trim $('#_synopsis + .verseblock > .content').text()
+        desc = $.trim $('#_synopsis + .sectionbody .content').text()
         robot.logger.debug "desc: #{desc}"
         if name and desc
             msg.send "*#{name}*"
