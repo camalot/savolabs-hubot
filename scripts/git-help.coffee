@@ -42,12 +42,11 @@ module.exports = (robot) ->
         hsee = $.trim $('#_see_also + .sectionbody .paragraph a')
         robot.logger.debug "see: #{hsee}"
         if name and desc
-            msg.send "*#{hname}*"
-            msg.send desc
-
-            msg.send "See #{url} for details."
+          msg.send "*#{hname}*"
+          msg.send desc
+          msg.send "See #{url} for details."
         else
-            msg.respond "No git help page found for #{topic}."
+          msg.respond "No git help page found for #{topic}."
       )
   robot.hear /^!git version$/i, (msg) ->
     url = 'http://git-scm.com/downloads'
@@ -61,11 +60,14 @@ module.exports = (robot) ->
       ).defaultView
       jsdom.jQueryify(window, "http://code.jquery.com/jquery-2.2.0.js", () ->
         $ = window.$
+        robot.logger.debug "getting version"
         dateText = $.trim($(".monitor .release-date").text())
         pattern = /\(([0-9]{4}-[0-9]{2}-[0-9]{2})\)/i
         if pattern.test(dateText)
           ver = $.trim($(".monitor .version").text())
           date = pattern.exec(dateText)[1]
+          robot.logger.debug "date found: #{date}"
+          robot.logger.debug "version: #{ver}"
           msg.respond "The latest version if git is _*#{ver}*_ and was released on #{date}"
           msg.send "Release Notes: https://raw.github.com/git/git/master/Documentation/RelNotes/#{ver}.txt"
         else
