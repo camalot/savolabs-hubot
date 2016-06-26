@@ -31,7 +31,7 @@ module.exports = (robot) ->
       "Please respect the table ┬─┬ノ(ಠ_ಠノ)",
       "http://i.imgur.com/pMFDPcg.gifv",
   ]
-  robot.hear /(┻━┻|flip(ped)? tables?)/i, (msg) ->
+  robot.hear /(table\s?flip(ped)|┻━┻|flip(ped)? tables?)/i, (msg) ->
     msg.send msg.random respects
   tableThanks = [
     "Always respect the table!",
