@@ -1,2 +1,2 @@
 require("coffee-script/register");
-module.exports = require("hubot/bin/hubot");
+module.exports = require("hubot/bin/hubot.coffee");
