@@ -13,13 +13,13 @@
 # Author:
 #   ryan conrad
 
-language = [
-  "#{msg.message.user.name}, language.",
-  "_* earmuffs *_",
-  "not in front of the children"
-]
-
 module.exports = (robot) ->
   robot.respond /(shit|fuck|ass-?hole|bitch|cunt|cock|dickhead|jack-?ass|whore)/i, (msg) ->
+    language = [
+      "#{msg.message.user.name}, language.",
+      "_* earmuffs *_",
+      "not in front of the children"
+    ]
+
     resp = msg.random language
     msg.reply msg.random language
