@@ -8,5 +8,7 @@
   "hubot-8ball",
   "hubot-imgur",
   "git-help",
-  "applause"
+  "applause",
+  "hubot-language",
+  "welcome"
 ]
