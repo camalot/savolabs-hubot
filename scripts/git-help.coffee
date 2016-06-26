@@ -49,7 +49,7 @@ module.exports = (robot) ->
         else
             msg.respond "No git help page found for #{topic}."
       )
-  robot.head /^!git version$/i, (msg) ->
+  robot.hear /^!git version$/i, (msg) ->
     url = 'http://git-scm.com/downloads'
     msg.http(url).get() (err,res,body) ->
       window = (jsdom body,
