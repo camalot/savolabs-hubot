@@ -14,7 +14,7 @@
 #   ryan conrad
 
 module.exports = (robot) ->
-  robot.respond /(shit|fuck|ass-?hole|bitch|cunt|cock|dickhead|jack-?ass|whore)/i, (msg) ->
+  robot.hear /(shit|fuck|ass-?hole|bitch|cunt|cock|dickhead|jack-?ass|whore)/i, (msg) ->
     language = [
       "#{msg.message.user.name}, language.",
       "_* earmuffs *_",
