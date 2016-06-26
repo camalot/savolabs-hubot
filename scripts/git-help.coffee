@@ -63,15 +63,15 @@ module.exports = (robot) ->
         robot.logger.debug "getting version"
         dateText = $.trim($(".monitor .release-date").text())
         pattern = /\(([0-9]{4}-[0-9]{2}-[0-9]{2})\)/i
-        if pattern.test(dateText)
-          ver = $.trim($(".monitor .version").text())
-          date = pattern.exec(dateText)[1]
-          robot.logger.debug "date found: #{date}"
-          robot.logger.debug "version: #{ver}"
-          msg.respond "The latest version if git is _*#{ver}*_ and was released on #{date}"
-          msg.send "Release Notes: https://raw.github.com/git/git/master/Documentation/RelNotes/#{ver}.txt"
+        if pattern.test dateText
+            ver = $.trim($(".monitor .version").text())
+            date = pattern.exec(dateText)[1]
+            robot.logger.debug "date found: #{date}"
+            robot.logger.debug "version: #{ver}"
+            msg.respond "The latest version if git is _*#{ver}*_ and was released on #{date}"
+            msg.send "Release Notes: https://raw.github.com/git/git/master/Documentation/RelNotes/#{ver}.txt"
         else
-          msg.respond "I am having trouble locating the info on the latest version."
+            msg.respond "I am having trouble locating the info on the latest version."
       )
   robot.hear /^!git book$/i, (msg) ->
     msg.send "*Pro Git* by _Scott Chacon and Ben Straub_ : http://git-scm.com/book/en/v2"
