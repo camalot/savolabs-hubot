@@ -9,5 +9,6 @@
   "hubot-shipit",
   "hubot-azure-scripts/brain/storage-blob-brain",
   "hubot-standup-alarm",
-  "hubot-thank-you"
+  "hubot-thank-you",
+  "hubot-plusplus"
 ]
