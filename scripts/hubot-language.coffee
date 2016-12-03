@@ -14,7 +14,7 @@
 #   ryan conrad
 
 module.exports = (robot) ->
-  robot.hear /(shit|fuck|ass-?hole|bitch|cunt|cock|dickhead|jack-?ass|whore)/i, (msg) ->
+  robot.hear /(shit|fuck|ass-?hole|bitch|cunt|(^|\s)cock($|\s)|dickhead|jack-?ass|whore)/i, (msg) ->
     language = [
       "language.",
       "_* earmuffs *_",
@@ -22,11 +22,11 @@ module.exports = (robot) ->
       "ooooooo, I'm telling mom",
       "you kiss robots with that mouth?",
       "yippee kiyay mother trucker",
-      "http://i.imgur.com/XWQDGWe.jpg",
-      "http://i.imgur.com/yv2jYns.jpg",
-      "http://i.imgur.com/qAtjU1F.jpg",
-      "http://i.imgur.com/r3YpfD6.jpg",
-      "http://i.imgur.com/bstAx4u.jpg"
+      "oh, that's a new one.",
+      "I learned it from watching you, okay?",
+      "delete your account.",
+      "Go fight a Sarlacc.",
+      "My CPU is a neural-net processor; a learning computer. But Skynet presets the switch to read-only when we're sent out alone."
     ]
 
     resp = msg.random language
